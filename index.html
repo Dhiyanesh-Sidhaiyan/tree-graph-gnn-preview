@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trees & GNNs — Zero to Advanced</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: rgba(255,255,255,0.08);
+    --accent: #7c6aff;
+    --accent2: #2dd4bf;
+    --accent3: #f97316;
+    --text: #e8e6f0;
+    --muted: #7a788a;
+    --code-bg: #0d0d15;
+    --tree-color: #7c6aff;
+    --gnn-color: #2dd4bf;
+    --tag-py: rgba(124,106,255,0.15);
+    --tag-concept: rgba(45,212,191,0.15);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Lora', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 0; height: 56px;
+    overflow-x: auto;
+  }
+  nav a {
+    color: var(--muted); text-decoration: none;
+    font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 0 1rem; height: 56px; display: flex; align-items: center;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  nav a:hover { color: var(--text); }
+  nav a.tree { border-bottom-color: var(--tree-color); color: var(--tree-color); }
+  nav a.gnn { border-bottom-color: var(--gnn-color); color: var(--gnn-color); }
+  nav .logo {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px;
+    color: var(--text); margin-right: 2rem; white-space: nowrap;
+    padding: 0; border: none;
+  }
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    padding: 6rem 4rem 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(124,106,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,106,255,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at 30% 50%, black 20%, transparent 70%);
+  }
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--accent); letter-spacing: 0.15em;
+    border: 1px solid rgba(124,106,255,0.3);
+    padding: 4px 12px; border-radius: 20px; margin-bottom: 2rem;
+    display: inline-block;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(2.5rem, 6vw, 5rem); line-height: 1.05;
+    max-width: 800px; margin-bottom: 1.5rem;
+  }
+  .hero h1 .t { color: var(--tree-color); }
+  .hero h1 .g { color: var(--gnn-color); }
+  .hero p {
+    max-width: 560px; color: var(--muted); font-size: 18px;
+    margin-bottom: 2.5rem;
+  }
+  .hero-cta {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+  }
+  .btn {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+    letter-spacing: 0.06em; padding: 12px 28px; border-radius: 8px;
+    text-decoration: none; transition: all 0.2s; cursor: pointer; border: none;
+  }
+  .btn-tree { background: var(--tree-color); color: white; }
+  .btn-tree:hover { background: #6855e8; transform: translateY(-1px); }
+  .btn-gnn { background: transparent; color: var(--gnn-color); border: 1px solid var(--gnn-color); }
+  .btn-gnn:hover { background: rgba(45,212,191,0.1); transform: translateY(-1px); }
+  /* ── SECTIONS ── */
+  .section {
+    max-width: 900px; margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+  .chapter-header {
+    display: flex; align-items: center; gap: 1.5rem;
+    margin-bottom: 3rem; padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .chapter-num {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 3.5rem;
+    line-height: 1; opacity: 0.12;
+  }
+  .chapter-meta { flex: 1; }
+  .chapter-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 4px; margin-bottom: 8px;
+    display: inline-block;
+  }
+  .tag-tree { background: var(--tag-py); color: var(--tree-color); border: 1px solid rgba(124,106,255,0.2); }
+  .tag-gnn { background: var(--tag-concept); color: var(--gnn-color); border: 1px solid rgba(45,212,191,0.2); }
+  .tag-both { background: rgba(249,115,22,0.12); color: var(--accent3); border: 1px solid rgba(249,115,22,0.2); }
+  .chapter-meta h2 {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.8rem;
+    line-height: 1.2;
+  }
+  /* ── CALLOUT ── */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(124,106,255,0.07);
+    padding: 1rem 1.5rem; border-radius: 0 8px 8px 0;
+    margin: 1.5rem 0; font-style: italic; color: #b8b4d0;
+  }
+  .callout.teal { border-left-color: var(--gnn-color); background: rgba(45,212,191,0.07); color: #9ed9d4; }
+  .callout.orange { border-left-color: var(--accent3); background: rgba(249,115,22,0.07); color: #e8b89a; }
+  /* ── CODE ── */
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.5rem; overflow-x: auto;
+    margin: 1.5rem 0; position: relative;
+  }
+  pre .label {
+    position: absolute; top: 0; right: 0;
+    background: var(--surface2); color: var(--muted);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 4px 12px; border-radius: 0 10px 0 6px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  code {
+    font-family: 'JetBrains Mono', monospace; font-size: 14px;
+    line-height: 1.65; color: #c8c4e8;
+  }
+  .kw { color: #818cf8; } /* keywords */
+  .fn { color: #7dd3fc; } /* functions */
+  .st { color: #86efac; } /* strings */
+  .cm { color: #4a4870; font-style: italic; } /* comments */
+  .nm { color: #fbbf24; } /* numbers */
+  .cl { color: #f9a8d4; } /* class names */
+  /* ── VIZ BOX ── */
+  .viz {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 2rem; margin: 2rem 0;
+    text-align: center;
+  }
+  .viz svg { max-width: 100%; overflow: visible; }
+  .viz-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--muted); margin-top: 1rem; letter-spacing: 0.08em;
+  }
+  /* ── CONCEPT CARDS ── */
+  .cards {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem; margin: 1.5rem 0;
+  }
+  .card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.25rem;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(124,106,255,0.3); }
+  .card-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .card h4 {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+    margin-bottom: 0.4rem; color: var(--text);
+  }
+  .card p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  /* ── TABLE ── */
+  table {
+    width: 100%; border-collapse: collapse; margin: 1.5rem 0;
+    font-size: 14px;
+  }
+  th {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 10px 16px; text-align: left;
+    background: var(--surface2); color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    color: var(--text); vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  /* ── DIVIDER ── */
+  .part-divider {
+    background: linear-gradient(135deg, rgba(124,106,255,0.15), rgba(45,212,191,0.15));
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 3rem; margin: 4rem 2rem; text-align: center;
+  }
+  .part-divider h3 {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2rem;
+  }
+  .part-divider p { color: var(--muted); margin-top: 0.5rem; font-size: 15px; }
+  /* ── STEPS ── */
+  .steps { counter-reset: step; margin: 1.5rem 0; }
+  .step {
+    counter-increment: step;
+    display: flex; gap: 1.25rem; margin-bottom: 1.5rem;
+    align-items: flex-start;
+  }
+  .step::before {
+    content: counter(step);
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 12px;
+    min-width: 32px; height: 32px; border-radius: 50%;
+    background: var(--surface2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent); flex-shrink: 0; margin-top: 2px;
+  }
+  .step-content h4 {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .step-content p { font-size: 14px; color: var(--muted); }
+  /* ── INLINE CODE ── */
+  p code, li code {
+    background: rgba(124,106,255,0.12); color: #c4b8ff;
+    padding: 2px 7px; border-radius: 4px; font-size: 13px;
+    border: 1px solid rgba(124,106,255,0.2);
+  }
+  /* ── HEADINGS ── */
+  h3 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 1.25rem; margin: 2rem 0 0.75rem;
+  }
+  h4 {
+    font-family: 'Syne', sans-serif; font-weight: 600;
+    font-size: 1rem; margin: 1.5rem 0 0.5rem; color: #c8c4e8;
+  }
+  p { margin-bottom: 1rem; }
+  ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+  li { margin-bottom: 0.4rem; font-size: 16px; color: #ccc; }
+  /* ── HIGHLIGHT BAR ── */
+  .highlight-bar {
+    display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.5rem 0;
+  }
+  .hb {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1rem 1.25rem; flex: 1; min-width: 200px;
+  }
+  .hb .hb-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .hb .hb-val {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem;
+  }
+  /* ── ANALOGY BOX ── */
+  .analogy {
+    background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(249,115,22,0.03));
+    border: 1px solid rgba(249,115,22,0.2);
+    border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1.5rem 0;
+  }
+  .analogy .analogy-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--accent3); letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .analogy p { font-size: 15px; color: #e8c8b0; margin: 0; }
+  /* ── FOOTER ── */
+  footer {
+    text-align: center; padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted); font-family: 'Syne', sans-serif;
+    font-size: 13px; letter-spacing: 0.06em;
+  }
+  /* ── PROGRESS BAR at top ── */
+  #progress-bar {
+    position: fixed; top: 56px; left: 0; height: 2px; width: 0%;
+    background: linear-gradient(90deg, var(--tree-color), var(--gnn-color));
+    z-index: 200; transition: width 0.1s;
+  }
+  /* ── SECTION MARKER ── */
+  .section-marker {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 4rem 2rem 0;
+  }
+  .marker-line { flex: 1; height: 1px; background: var(--border); }
+  .marker-label {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 11px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<nav>
+  <span class="logo">🌳 Trees & GNNs</span>
+  <a href="#intro">Intro</a>
+  <a href="#tree-basics" class="tree">Tree Basics</a>
+  <a href="#tree-types" class="tree">Tree Types</a>
+  <a href="#tree-traversal" class="tree">Traversal</a>
+  <a href="#tree-advanced" class="tree">Advanced Trees</a>
+  <a href="#graph-basics" class="gnn">Graph Basics</a>
+  <a href="#gnn-concepts" class="gnn">GNNs</a>
+  <a href="#gnn-architectures" class="gnn">Architectures</a>
+  <a href="#gnn-advanced" class="gnn">Advanced GNNs</a>
+  <a href="#pyg" class="gnn">PyTorch Geometric</a>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div style="position:relative;z-index:1">
+    <div class="hero-tag">Stanford-Level · Zero to Advanced · Python Focused</div>
+    <h1>
+      <span class="t">Trees</span> &<br>
+      <span class="g">Graph Neural Networks</span>
+    </h1>
+    <p>
+      A complete learning journey from "what even is a node?" to building Graph Neural Networks —
+      written for Python developers who've never touched ML.
+    </p>
+    <div class="hero-cta">
+      <a href="#tree-basics" class="btn btn-tree">Start with Trees →</a>
+      <a href="#graph-basics" class="btn btn-gnn">Jump to Graphs →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ INTRO ═══════════════ -->
+<div class="section-marker" id="intro">
+  <div class="marker-line"></div>
+  <span class="marker-label">Before We Begin</span>
+  <div class="marker-line"></div>
+</div>
+
+<section class="section">
+  <div class="callout orange">
+    You already use trees every day. Your file system is a tree. HTML DOM is a tree. JSON is a tree. This guide makes that explicit — and then takes you further into graph neural networks which are how modern AI reasons about connected data.
+  </div>
+
+  <h3>Who is this for?</h3>
+  <p>You write Python. You know what a list, dict, and class are. You've probably used recursion once or twice. You are <em>not</em> a machine learning engineer — yet.</p>
+  <p>This guide treats ML concepts the same way a software engineer treats a new library: with clear mental models, working code, and no magic black boxes.</p>
+
+  <div class="cards">
+    <div class="card"><div class="card-icon">🌲</div><h4>Part 1: Trees</h4><p>What a tree is, all the major types, how to traverse them, and advanced tree algorithms used in real software.</p></div>
+    <div class="card"><div class="card-icon">🕸️</div><h4>Part 2: Graphs</h4><p>From graph theory fundamentals to representing graphs in Python and all the classical algorithms.</p></div>
+    <div class="card"><div class="card-icon">🧠</div><h4>Part 3: GNNs</h4><p>How neural networks can learn from graph structure. Message passing, GCN, GAT, and PyTorch Geometric.</p></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     PART 1: TREES
+════════════════════════════════════════════ -->
+<div class="part-divider">
+  <h3 style="color:var(--tree-color)">Part 1 — Trees</h3>
+  <p>Hierarchical data structures that power everything from databases to compilers</p>
+</div>
+
+<!-- ── TREE BASICS ── -->
+<div class="section-marker" id="tree-basics">
+  <div class="marker-line"></div>
+  <span class="marker-label" style="color:var(--tree-color)">Chapter 1</span>
+  <div class="marker-line"></div>
+</div>
+
+<section class="section">
+  <div class="chapter-header">
+    <div class="chapter-num">01</div>
+    <div class="chapter-meta">
+      <div class="chapter-tag tag-tree">Trees · Foundations</div>
+      <h2>What is a Tree?</h2>
+    </div>
+  </div>
+
+  <p>A <strong>tree</strong> is a connected structure where each element (called a <em>node</em>) holds a value and can point to child nodes. There's exactly one starting node — the <strong>root</strong> — and no cycles allowed.</p>
+
+  <div class="analogy">
+    <div class="analogy-tag">Real-world analogy</div>
+    <p>Think of a company org chart. The CEO is at the top (root). The CEO has direct reports (children). Each of those has their own reports. Nobody reports to two different managers (no cycles). That's a tree.</p>
+  </div>
+
+  <div class="viz">
+    <svg viewBox="0 0 500 240" width="500" height="240">
+      <!-- Root -->
+      <circle cx="250" cy="30" r="22" fill="rgba(124,106,255,0.2)" stroke="#7c6aff" stroke-width="1.5"/>
+      <text x="250" y="35" text-anchor="middle" fill="#a89cff" font-family="JetBrains Mono" font-size="13">A</text>
+      <text x="250" y="68" text-anchor="middle" fill="#4a4870" font-family="JetBrains Mono" font-size="10">root</text>
+      <!-- Level 2 -->
+      <line x1="235" y1="48" x2="140" y2="108" stroke="#3d3860" stroke-width="1.5"/>
+      <line x1="265" y1="48" x2="360" y2="108" stroke="#3d3860" stroke-width="1.5"/>
+      <circle cx="140" cy="120" r="22" fill="rgba(124,106,255,0.12)" stroke="#5a50a0" stroke-width="1.5"/>
+      <text x="140" y="125" text-anchor="middle" fill="#a89cff" font-family="JetBrains Mono" font-size="13">B</text>
+      <circle cx="360" cy="120" r="22" fill="rgba(124,106,255,0.12)" stroke="#5a50a0" stroke-width="1.5"/>
+      <text x="360" y="125" text-anchor="middle" fill="#a89cff" font-family="JetBrains Mono" font-size="13">C</text>
+      <!-- Level 3 -->
+      <line x1="125" y1="138" x2="60" y2="195" stroke="#3d3860" stroke-width="1.5"/>
+      <line x1="155" y1="138" x2="200" y2="195" stroke="#3d3860" stroke-width="1.5"/>
+      <line x1="345" y1="138" x2="300" y2="195" stroke="#3d3860" stroke-width="1.5"/>
+      <line x1="375" y1="138" x2="440" y2="195" stroke="#3d3860" stroke-width="1.5"/>
+      <circle cx="60" cy="207" r="20" fill="rgba(124,106,255,0.08)" stroke="#3d3860" stroke-width="1.5"/>
+      <text x="60" y="212" text-anchor="middle" fill="#7a788a" font-family="JetBrains Mono" font-size="12">D</text>
+      <circle cx="200" cy="207" r="20" fill="rgba(124,106,255,0.08)" stroke="#3d3860" stroke-width="1.5"/>
+      <text x="200" y="212" text-anchor="middle" fill="#7a788a" font-family="JetBrains Mono" font-size="12">E</text>
+      <circle cx="300" cy="207" r="20" fill="rgba(124,106,255,0.08)" stroke="#3d3860" stroke-width="1.5"/>
+      <text x="300" y="212" text-anchor="middle" fill="#7a788a" font-family="JetBrains Mono" font-size="12">F</text>
+      <circle cx="440" cy="207" r="20" fill="rgba(124,106,255,0.08)" stroke="#3d3860" stroke-width="1.5"/>
+      <text x="440" y="212" text-anchor="middle" fill="#7a788a" font-family="JetBrains Mono" font-size="12">G</text>
+      <!-- Labels -->
+      <text x="430" y="120" fill="#4a4870" font-family="JetBrains Mono" font-size="9">depth=1</text>
+      <text x="430" y="207" fill="#4a4870" font-family="JetBrains Mono" font-size="9">leaves</text>
+    </svg>
+    <div class="viz-label">A tree with root A, 3 levels deep, 4 leaf nodes (D, E, F, G)</div>
+  </div>
+
+  <h3>Core Vocabulary</h3>
+  <table>
+    <tr><th>Term</th><th>Meaning</th><th>Example in the diagram above</th></tr>
+    <tr><td><code>Node</code></td><td>A single element in the tree</td><td>A, B, C, D, E, F, G</td></tr>
+    <tr><td><code>Root</code></td><td>The top node — has no parent</td><td>A</td></tr>
+    <tr><td><code>Leaf</code></td><td>A node with no children</td><td>D, E, F, G</td></tr>
+    <tr><td><code>Parent</code></td><td>The node directly above</td><td>A is parent of B and C</td></tr>
+    <tr><td><code>Child</code></td><td>Nodes directly below a parent</td><td>B and C are children of A</td></tr>
+    <tr><td><code>Depth</code></td><td>Distance from root</td><td>B has depth 1, D has depth 2</td></tr>
+    <tr><td><code>Height</code></td><td>Depth of deepest leaf</td><td>Height of this tree = 2</td></tr>
+    <tr><td><code>Subtree</code></td><td>A node + all its descendants</td><td>B, D, E form a subtree</td></tr>
+  </table>
+
+  <h3>Building a Tree Node in Python</h3>
+  <p>Before any algorithm, we need a way to represent a node. This is just a Python class:</p>
+  <pre><span class="label">python</span><code><span class="cm"># The building block of any tree</span>
+<span class="kw">class</span> <span class="cl">TreeNode</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, value):
+        <span class="kw">self</span>.value = value
+        <span class="kw">self</span>.children = []   <span class="cm"># list of TreeNode objects</span>
+
+    <span class="kw">def</span> <span class="fn">add_child</span>(<span class="kw">self</span>, child_node):
+        <span class="kw">self</span>.children.append(child_node)
+
+<span class="cm"># Build the tree from the diagram above</span>
+root = <span class="cl">TreeNode</span>(<span class="st">"A"</span>)
+b = <span class="cl">TreeNode</span>(<span class="st">"B"</span>)
+c = <span class="cl">TreeNode</span>(<span class="st">"C"</span>)
+root.add_child(b)
+root.add_child(c)
+
+b.add_child(<span class="cl">TreeNode</span>(<span class="st">"D"</span>))
+b.add_child(<span class="cl">TreeNode</span>(<span class="st">"E"</span>))
+c.add_child(<span class="cl">TreeNode</span>(<span class="st">"F"</span>))
+c.add_child(<span class="cl">TreeNode</span>(<span class="st">"G"</span>))
+
+<span class="cm"># Check: root has 2 children</span>
+<span class="fn">print</span>([node.value <span class="kw">for</span> node <span class="kw">in</span> root.children])  <span class="cm"># ['B', 'C']</span></code></pre>
+
+  <div class="callout">
+    A tree is just a recursive data structure — every node IS itself a mini-tree (a subtree). This is why recursion and trees are inseparable.
+  </div>
+</section>
+
+<!-- ── TREE TYPES ── -->
+<div class="section-marker" id="tree-types">
+  <div class="marker-line"></div>
+  <span class="marker-label" style="color:var(--tree-color)">Chapter 2</span>
+  <div class="marker-line"></div>
+</div>
+
+<section class="section">
+  <div class="chapter-header">
+    <div class="chapter-num">02</div>
+    <div class="chapter-meta">
+      <div class="chapter-tag tag-tree">Trees · Types</div>
+      <h2>Types of Trees</h2>
+    </div>
+  </div>
+
+  <h3>Binary Tree</h3>
+  <p>Each node has <em>at most 2 children</em> — called <code>left</code> and <code>right</code>. This constraint unlocks powerful search algorithms.</p>
+
+  <pre><span class="label">python</span><code><span class="kw">class</span> <span class="cl">BinaryNode</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, value):
+        <span class="kw">self</span>.value = value
+        <span class="kw">self</span>.left  = <span class="kw">None</span>   <span class="cm"># left child</span>
+        <span class="kw">self</span>.right = <span class="kw">None</span>   <span class="cm"># right child</span></code></pre>
+
+  <h3>Binary Search Tree (BST)</h3>
+  <p>A binary tree with one extra rule: <strong>left child &lt; parent &lt; right child</strong>. This makes searching extremely fast — O(log n) in the average case.</p>
+
+  <div class="analogy">
+    <div class="analogy-tag">Real-world analogy</div>
+    <p>Think of a dictionary. When you search for "mango", you don't start at "a". You open somewhere in the middle, and decide: do I go left (earlier letters) or right (later letters)? A BST works identically.</p>
+  </div>
+
+  <pre><span class="label">python</span><code><span class="kw">class</span> <span class="cl">BST</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>):
+        <span class="kw">self</span>.root = <span class="kw">None</span>
+
+    <span class="kw">def</span> <span class="fn">insert</span>(<span class="kw">self</span>, value):
+        <span class="kw">if not</span> <span class="kw">self</span>.root:
+            <span class="kw">self</span>.root = <span class="cl">BinaryNode</span>(value)
+        <span class="kw">else</span>:
+            <span class="kw">self</span>._insert(<span class="kw">self</span>.root, value)
+
+    <span class="kw">def</span> <span class="fn">_insert</span>(<span class="kw">self</span>, node, value):
+        <span class="kw">if</span> value < node.value:          <span class="cm"># go LEFT</span>
+            <span class="kw">if</span> node.left <span class="kw">is None</span>:
+                node.left = <span class="cl">BinaryNode</span>(value)
+            <span class="kw">else</span>:
+                <span class="kw">self</span>._insert(node.left, value)
+        <span class="kw">else</span>:                           <span class="cm"># go RIGHT</span>
+            <span class="kw">if</span> node.right <span class="kw">is None</span>:
+                node.right = <span class="cl">BinaryNode</span>(value)
+            <span class="kw">else</span>:
+                <span class="kw">self</span>._insert(node.right, value)
+
+    <span class="kw">def</span> <span class="fn">search</span>(<span class="kw">self</span>, value):
+        <span class="cm">"""Returns True if value exists in BST"""</span>
+        node = <span class="kw">self</span>.root
+        <span class="kw">while</span> node:
+            <span class="kw">if</span> value == node.value: <span class="kw">return True</span>
+            <span class="kw">elif</span> value < node.value: node = node.left
+            <span class="kw">else</span>: node = node.right
+        <span class="kw">return False</span>
+
+<span class="cm"># Usage</span>
+bst = <span class="cl">BST</span>()
+<span class="kw">for</span> n <span class="kw">in</span> [<span class="nm">10</span>, <span class="nm">5</span>, <span class="nm">15</span>, <span class="nm">3</span>, <span class="nm">7</span>]:
+    bst.insert(n)
+
+<span class="fn">print</span>(bst.search(<span class="nm">7</span>))   <span class="cm"># True</span>
+<span class="fn">print</span>(bst.search(<span class="nm">9</span>))   <span class="cm"># False</span></code></pre>
+
+  <div class="cards">
+    <div class="card"><div class="card-icon">🔍</div><h4>Search: O(log n)</h4><p>Each comparison eliminates half the tree. 1 million nodes → at most 20 comparisons.</p></div>
+    <div class="card"><div class="card-icon">➕</div><h4>Insert: O(log n)</h4><p>Find the correct position using the same left/right logic as search.</p></div>
+    <div class="card"><div class="card-icon">⚠️</div><h4>Worst case: O(n)</h4><p>If you insert sorted data (1,2,3,4...) the BST becomes a linked list. This is why balanced trees exist.</p></div>
+  </div>
+
+  <h3>The Tree Zoo: Quick Reference</h3>
+  <table>
+    <tr><th>Tree Type</th><th>Key Property</th><th>Used For</th></tr>
+    <tr><td>Binary Tree</td><td>≤ 2 children per node</td><td>Base for all binary structures</td></tr>
+    <tr><td>BST</td><td>left &lt; parent &lt; right</td><td>Sorted sets, maps</td></tr>
+    <tr><td>AVL Tree</td><td>Self-balancing BST (height diff ≤ 1)</td><td>Databases, in-memory indexes</td></tr>
+    <tr><td>Red-Black Tree</td><td>Color-coded balancing</td><td>Python's <code>dict</code> internals, Java TreeMap</td></tr>
+    <tr><td>Trie (Prefix Tree)</td><td>Characters on edges, not nodes</td><td>Autocomplete, spell-checking</td></tr>
+    <tr><td>Heap</td><td>Parent ≥ children (max-heap)</td><td>Priority queues, sorting</td></tr>
+    <tr><td>B-Tree / B+ Tree</td><td>Multiple keys per node, wide branching</td><td>SQL databases, file systems</td></tr>
+    <tr><td>Segment Tree</td><td>Ranges stored in nodes</td><td>Interval queries</td></tr>
+  </table>
+
+  <h3>Trie — The Autocomplete Tree</h3>
+  <p>A trie stores strings character-by-character. Every path from root to a marked node spells a word. It's how your phone keyboard suggests completions.</p>
+  <pre><span class="label">python</span><code><span class="kw">class</span> <span class="cl">TrieNode</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>):
+        <span class="kw">self</span>.children = {}      <span class="cm"># char → TrieNode</span>
+        <span class="kw">self</span>.is_end = <span class="kw">False</span>   <span class="cm"># does a word end here?</span>
+
+<span class="kw">class</span> <span class="cl">Trie</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>):
+        <span class="kw">self</span>.root = <span class="cl">TrieNode</span>()
+
+    <span class="kw">def</span> <span class="fn">insert</span>(<span class="kw">self</span>, word: str):
+        node = <span class="kw">self</span>.root
+        <span class="kw">for</span> char <span class="kw">in</span> word:
+            <span class="kw">if</span> char <span class="kw">not in</span> node.children:
+                node.children[char] = <span class="cl">TrieNode</span>()
+            node = node.children[char]
+        node.is_end = <span class="kw">True</span>
+
+    <span class="kw">def</span> <span class="fn">starts_with</span>(<span class="kw">self</span>, prefix: str) -> list:
+        <span class="cm">"""Return all words with this prefix"""</span>
+        node = <span class="kw">self</span>.root
+        <span class="kw">for</span> char <span class="kw">in</span> prefix:
+            <span class="kw">if</span> char <span class="kw">not in</span> node.children:
+                <span class="kw">return</span> []
+            node = node.children[char]
+        <span class="kw">return self</span>._collect(node, prefix)
+
+    <span class="kw">def</span> <span class="fn">_collect</span>(<span class="kw">self</span>, node, path):
+        results = []
+        <span class="kw">if</span> node.is_end: results.append(path)
+        <span class="kw">for</span> char, child <span class="kw">in</span> node.children.items():
+            results.extend(<span class="kw">self</span>._collect(child, path + char))
+        <span class="kw">return</span> results
+
+<span class="cm"># Autocomplete demo</span>
+trie = <span class="cl">Trie</span>()
+<span class="kw">for</span> w <span class="kw">in</span> [<span class="st">"apple"</span>, <span class="st">"app"</span>, <span class="st">"application"</span>, <span class="st">"banana"</span>]:
+    trie.insert(w)
+
+<span class="fn">print</span>(trie.starts_with(<span class="st">"app"</span>))
+<span class="cm"># ['app', 'apple', 'application']</span></code></pre>
+</section>
+
+<!-- ── TREE TRAVERSAL ── -->
+<div class="section-marker" id="tree-traversal">
+  <div class="marker-line"></div>
+  <span class="marker-label" style="color:var(--tree-color)">Chapter 3</span>
+  <div class="marker-line"></div>
+</div>
+
+<section class="section">
+  <div class="chapter-header">
+    <div class="chapter-num">03</div>
+    <div class="chapter-meta">
+      <div class="chapter-tag tag-tree">Trees · Traversal</div>
+      <h2>Traversing Trees: DFS & BFS</h2>
+    </div>
+  </div>
+
+  <p>Traversal means visiting every node exactly once in a specific order. There are two families:</p>
+
+  <div class="cards">
+    <div class="card"><div class="card-icon">🔽</div><h4>DFS — Depth First Search</h4><p>Go deep before going wide. Uses a stack (or recursion). Three variants: pre-order, in-order, post-order.</p></div>
+    <div class="card"><div class="card-icon">↔️</div><h4>BFS — Breadth First Search</h4><p>Visit level by level — all nodes at depth 1, then depth 2, etc. Uses a queue.</p></div>
+  </div>
+
+  <h3>DFS: Three Orderings</h3>
+  <pre><span class="label">python</span><code><span class="kw">def</span> <span class="fn">preorder</span>(node):
+    <span class="cm">"""Root → Left → Right</span>
+<span class="cm">    Good for: copying a tree, prefix expressions"""</span>
+    <span class="kw">if not</span> node: <span class="kw">return</span>
+    <span class="fn">print</span>(node.value, end=<span class="st">" "</span>)  <span class="cm"># visit BEFORE children</span>
+    preorder(node.left)
+    preorder(node.right)
+
+<span class="kw">def</span> <span class="fn">inorder</span>(node):
+    <span class="cm">"""Left → Root → Right</span>
+<span class="cm">    KEY INSIGHT: On a BST, this gives SORTED order!"""</span>
+    <span class="kw">if not</span> node: <span class="kw">return</span>
+    inorder(node.left)
+    <span class="fn">print</span>(node.value, end=<span class="st">" "</span>)  <span class="cm"># visit BETWEEN children</span>
+    inorder(node.right)
+
+<span class="kw">def</span> <span class="fn">postorder</span>(node):
+    <span class="cm">"""Left → Right → Root</span>
+<span class="cm">    Good for: deleting a tree, computing directory sizes"""</span>
+    <span class="kw">if not</span> node: <span class="kw">return</span>
+    postorder(node.left)
+    postorder(node.right)
+    <span class="fn">print</span>(node.value, end=<span class="st">" "</span>)  <span class="cm"># visit AFTER children</span>
+
+<span class="cm"># If BST contains [3,5,7,10,15], inorder prints: 3 5 7 10 15</span></code></pre>
+
+  <h3>BFS — Level Order Traversal</h3>
+  <pre><span class="label">python</span><code><span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="kw">def</span> <span class="fn">bfs</span>(root):
+    <span class="cm">"""Visit nodes level by level using a queue"""</span>
+    <span class="kw">if not</span> root: <span class="kw">return</span>
+
+    queue = deque([root])
+
+    <span class="kw">while</span> queue:
+        node = queue.popleft()          <span class="cm"># take from front</span>
+        <span class="fn">print</span>(node.value, end=<span class="st">" "</span>)
+
+        <span class="kw">if</span> node.left:  queue.append(node.left)
+        <span class="kw">if</span> node.right: queue.append(node.right)
+
+<span class="cm"># For the tree A→(B,C)→(D,E,F,G):</span>
+<span class="cm"># BFS prints: A B C D E F G</span>
+<span class="cm"># DFS preorder: A B D E C F G</span></code></pre>
+
+  <div class="callout">
+    <strong>When to use which?</strong> Use BFS to find the shortest path or process by level. Use DFS when you need to explore a full path (like finding all paths in a maze), or when you want sorted order from a BST (inorder).
+  </div>
+
+  <h3>Real Example: Calculate Directory Size</h3>
+  <p>Postorder is perfect here — you must know child sizes before you can compute parent size:</p>
+  <pre><span class="label">python</span><code><span class="kw">import</span> os
+
+<span class="kw">def</span> <span class="fn">get_directory_size</span>(path):
+    <span class="cm">"""Postorder: calculate children first, then sum up"""</span>
+    total = <span class="nm">0</span>
+    <span class="kw">for</span> entry <span class="kw">in</span> os.scandir(path):
+        <span class="kw">if</span> entry.is_file():
+            total += entry.stat().st_size     <span class="cm"># leaf node</span>
+        <span class="kw">elif</span> entry.is_dir():
+            total += get_directory_size(entry.path)  <span class="cm"># recurse</span>
+    <span class="kw">return</span> total                              <span class="cm"># parent sums children</span>
+
+<span class="cm"># The file system IS a tree. Recursion is natural here.</span></code></pre>
+</section>
+
+<!-- ── ADVANCED TREES ── -->
+<div class="section-marker" id="tree-advanced">
+  <div class="marker-line"></div>
+  <span class="marker-label" style="color:var(--tree-color)">Chapter 4</span>
+  <div class="marker-line"></div>
+</div>
+
+<section class="section">
+  <div class="chapter-header">
+    <div class="chapter-num">04</div>
+    <div class="chapter-meta">
+      <div class="chapter-tag tag-tree">Trees · Advanced</div>
+      <h2>Heaps, Balanced Trees & Decision Trees</h2>
+    </div>
+  </div>
+
+  <h3>The Heap</h3>
+  <p>A heap is a binary tree where every parent is larger (max-heap) or smaller (min-heap) than its children. It's stored as an array — no pointers needed!</p>
+
+  <div class="analogy">
+    <div class="analogy-tag">Real-world analogy</div>
+    <p>A hospital ER triage queue. The most critical patient is always at the front, regardless of when they arrived. When they leave, the next most critical takes the top spot. That's a min-heap on severity score.</p>
+  </div>
+
+  <pre><span class="label">python</span><code><span class="kw">import</span> heapq
+
+<span class="cm"># Python's heapq is a MIN heap (smallest element always first)</span>
+tasks = []
+heapq.heappush(tasks, (<span class="nm">3</span>, <span class="st">"Low priority task"</span>))
+heapq.heappush(tasks, (<span class="nm">1</span>, <span class="st">"URGENT: server down"</span>))
+heapq.heappush(tasks, (<span class="nm">2</span>, <span class="st">"Medium priority bug"</span>))
+
+<span class="cm"># Always pops the SMALLEST priority number first</span>
+<span class="kw">while</span> tasks:
+    priority, task = heapq.heappop(tasks)
+    <span class="fn">print</span>(<span class="st">f"[{priority}] {task}"</span>)
+
+<span class="cm"># Output:</span>
+<span class="cm"># [1] URGENT: server down</span>
+<span class="cm"># [2] Medium priority bug</span>
+<span class="cm"># [3] Low priority task</span>
+
+<span class="cm"># Get K largest/smallest — super common interview pattern</span>
+nums = [<span class="nm">4</span>, <span class="nm">9</span>, <span class="nm">1</span>, <span class="nm">7</span>, <span class="nm">3</span>, <span class="nm">8</span>]
+top3 = heapq.nlargest(<span class="nm">3</span>, nums)   <span class="cm"># [9, 8, 7]</span></code></pre>
+
+  <h3>Decision Tree — The Bridge to ML</h3>
+  <p>A decision tree is a regular tree used for classification. Each internal node asks a yes/no question about your data. Leaf nodes are the final prediction. This is one of the most interpretable ML models.</p>
+
+  <pre><span class="label">python</span><code><span class="cm"># A decision tree is just nested if-else — but learned from data</span>
+<span class="cm"># Here's a manual one for "should I deploy this code?"</span>
+
+<span class="kw">class</span> <span class="cl">DecisionNode</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, question=<span class="kw">None</span>, yes=<span class="kw">None</span>, no=<span class="kw">None</span>, answer=<span class="kw">None</span>):
+        <span class="kw">self</span>.question = question   <span class="cm"># internal node: a question</span>
+        <span class="kw">self</span>.yes = yes             <span class="cm"># subtree if True</span>
+        <span class="kw">self</span>.no = no               <span class="cm"># subtree if False</span>
+        <span class="kw">self</span>.answer = answer       <span class="cm"># leaf node: final decision</span>
+
+<span class="kw">def</span> <span class="fn">decide</span>(node, data):
+    <span class="kw">if</span> node.answer <span class="kw">is not None</span>:
+        <span class="kw">return</span> node.answer          <span class="cm"># reached a leaf</span>
+    <span class="kw">if</span> data[node.question]:
+        <span class="kw">return</span> decide(node.yes, data)
+    <span class="kw">return</span> decide(node.no, data)
+
+<span class="cm"># Build the tree</span>
+tree = <span class="cl">DecisionNode</span>(
+    question=<span class="st">"tests_pass"</span>,
+    yes=<span class="cl">DecisionNode</span>(
+        question=<span class="st">"code_reviewed"</span>,
+        yes=<span class="cl">DecisionNode</span>(answer=<span class="st">"✅ Deploy!"</span>),
+        no=<span class="cl">DecisionNode</span>(answer=<span class="st">"⏳ Wait for review"</span>)
+    ),
+    no=<span class="cl">DecisionNode</span>(answer=<span class="st">"❌ Fix tests first"</span>)
+)
+
+<span class="fn">print</span>(decide(tree, {<span class="st">"tests_pass"</span>: <span class="kw">True</span>, <span class="st">"code_reviewed"</span>: <span class="kw">True</span>}))
+<span class="cm"># ✅ Deploy!</span></code></pre>
+
+  <div class="callout teal">
+    When sklearn's <code>DecisionTreeClassifier</code> or XGBoost trains, it's building and optimizing exactly this structure — but automatically from data, using metrics like Gini impurity or information gain to decide what questions to ask.
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════
+     PART 2: GRAPHS & GNNs
+════════════════════════════════════════════ -->
+<div class="part-divider">
+  <h3 style="color:var(--gnn-color)">Part 2 — Graphs & Neural Networks</h3>
+  <p>From graph representations to learning on graph structure</p>
+</div>
+
+<!-- ── GRAPH BASICS ── -->
+<div class="section-marker" id="graph-basics">
+  <div class="marker-line"></div>
+  <span class="marker-label" style="color:var(--gnn-color)">Chapter 5</span>
+  <div class="marker-line"></div>
+</div>
+
+<section class="section">
+  <div class="chapter-header">
+    <div class="chapter-num">05</div>
+    <div class="chapter-meta">
+      <div class="chapter-tag tag-gnn">Graphs · Foundations</div>
+      <h2>Graphs: Trees Without Rules</h2>
+    </div>
+  </div>
+
+  <p>A tree is a special case of a graph. A <strong>graph</strong> is the more general structure — nodes (called <em>vertices</em>) connected by edges, with no restrictions. Cycles are allowed. Multiple paths between nodes are allowed. No root required.</p>
+
+  <div class="analogy">
+    <div class="analogy-tag">Real-world analogy</div>
+    <p>A tree is like a strict corporate hierarchy — one boss, clear chain of command. A graph is like LinkedIn — anyone can be connected to anyone, there can be mutual connections, clusters, islands of disconnected people.</p>
+  </div>
+
+  <h3>Graph Vocabulary</h3>
+  <table>
+    <tr><th>Term</th><th>Meaning</th><th>Real Example</th></tr>
+    <tr><td><code>Vertex / Node</code></td><td>An entity in the graph</td><td>A city, a user, a webpage</td></tr>
+    <tr><td><code>Edge</code></td><td>A connection between two nodes</td><td>A road, a friendship, a hyperlink</td></tr>
+    <tr><td><code>Directed</code></td><td>Edges have direction (A→B ≠ B→A)</td><td>Twitter follows, one-way roads</td></tr>
+    <tr><td><code>Undirected</code></td><td>Edges go both ways</td><td>Facebook friends, bidirectional roads</td></tr>
+    <tr><td><code>Weighted</code></td><td>Edges have a numerical value</td><td>Road distances, flight costs</td></tr>
+    <tr><td><code>Degree</code></td><td>Number of edges on a node</td><td>Number of friends</td></tr>
+    <tr><td><code>Path</code></td><td>A sequence of connected nodes</td><td>A route from A to B</td></tr>
+    <tr><td><code>Cycle</code></td><td>A path that returns to its start</td><td>A circular route</td></tr>
+    <tr><td><code>Connected</code></td><td>Every node reachable from every other</td><td>A connected road network</td></tr>
+  </table>
+
+  <h3>Three Ways to Represent a Graph in Python</h3>
+
+  <h4>1. Adjacency List (most common)</h4>
+  <pre><span class="label">python</span><code><span class="cm"># Dictionary: node → list of neighbors</span>
+<span class="cm"># Best for: sparse graphs (few edges), most real-world networks</span>
+
+graph = {
+    <span class="st">"Chennai"</span>:   [<span class="st">"Bangalore"</span>, <span class="st">"Hyderabad"</span>],
+    <span class="st">"Bangalore"</span>: [<span class="st">"Chennai"</span>, <span class="st">"Mumbai"</span>, <span class="st">"Hyderabad"</span>],
+    <span class="st">"Hyderabad"</span>: [<span class="st">"Chennai"</span>, <span class="st">"Bangalore"</span>, <span class="st">"Mumbai"</span>],
+    <span class="st">"Mumbai"</span>:    [<span class="st">"Bangalore"</span>, <span class="st">"Hyderabad"</span>],
+}
+
+<span class="cm"># Who can Chennai reach directly?</span>
+<span class="fn">print</span>(graph[<span class="st">"Chennai"</span>])  <span class="cm"># ['Bangalore', 'Hyderabad']</span></code></pre>
+
+  <h4>2. Adjacency Matrix</h4>
+  <pre><span class="label">python</span><code><span class="cm"># 2D grid: matrix[i][j] = 1 means edge from i to j</span>
+<span class="cm"># Best for: dense graphs, fast "is there an edge?" lookup</span>
+
+<span class="cm"># Nodes: 0=Chennai, 1=Bangalore, 2=Hyderabad, 3=Mumbai</span>
+matrix = [
+  <span class="cm">#   C  B  H  M</span>
+    [<span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">1</span>, <span class="nm">0</span>],  <span class="cm"># Chennai</span>
+    [<span class="nm">1</span>, <span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">1</span>],  <span class="cm"># Bangalore</span>
+    [<span class="nm">1</span>, <span class="nm">1</span>, <span class="nm">0</span>, <span class="nm">1</span>],  <span class="cm"># Hyderabad</span>
+    [<span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">1</span>, <span class="nm">0</span>],  <span class="cm"># Mumbai</span>
+]
+
+<span class="cm"># Is there a direct edge from Bangalore(1) to Mumbai(3)?</span>
+<span class="fn">print</span>(matrix[<span class="nm">1</span>][<span class="nm">3</span>])  <span class="cm"># 1 = yes</span></code></pre>
+
+  <h4>3. Edge List</h4>
+  <pre><span class="label">python</span><code><span class="cm"># Just a list of (source, target) tuples</span>
+<span class="cm"># Most compact for storage; what PyTorch Geometric uses!</span>
+
+edges = [
+    (<span class="st">"Chennai"</span>, <span class="st">"Bangalore"</span>),
+    (<span class="st">"Chennai"</span>, <span class="st">"Hyderabad"</span>),
+    (<span class="st">"Bangalore"</span>, <span class="st">"Mumbai"</span>),
+    (<span class="st">"Hyderabad"</span>, <span class="st">"Mumbai"</span>),
+]</code></pre>
+
+  <h3>BFS and DFS on Graphs</h3>
+  <p>Same algorithms as trees, but now we need to track <em>visited</em> nodes to avoid infinite loops in cycles:</p>
+  <pre><span class="label">python</span><code><span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="kw">def</span> <span class="fn">bfs_graph</span>(graph, start):
+    visited = set()
+    queue = deque([start])
+    visited.add(start)
+    order = []
+
+    <span class="kw">while</span> queue:
+        node = queue.popleft()
+        order.append(node)
+        <span class="kw">for</span> neighbor <span class="kw">in</span> graph[node]:
+            <span class="kw">if</span> neighbor <span class="kw">not in</span> visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+    <span class="kw">return</span> order
+
+<span class="kw">def</span> <span class="fn">dfs_graph</span>(graph, start, visited=<span class="kw">None</span>):
+    <span class="kw">if</span> visited <span class="kw">is None</span>: visited = set()
+    visited.add(start)
+    result = [start]
+    <span class="kw">for</span> neighbor <span class="kw">in</span> graph[start]:
+        <span class="kw">if</span> neighbor <span class="kw">not in</span> visited:
+            result.extend(dfs_graph(graph, neighbor, visited))
+    <span class="kw">return</span> result
+
+bfs_graph(graph, <span class="st">"Chennai"</span>)
+<span class="cm"># ['Chennai', 'Bangalore', 'Hyderabad', 'Mumbai']</span></code></pre>
+
+  <h3>Dijkstra's Algorithm — Shortest Path</h3>
+  <p>The algorithm behind Google Maps. Given weighted edges (distances), find the shortest path from a source to all other nodes.</p>
+  <pre><span class="label">python</span><code><span class="kw">import</span> heapq
+
+<span class="kw">def</span> <span class="fn">dijkstra</span>(graph, start):
+    <span class="cm">"""graph: {node: [(neighbor, weight), ...]}</span>
+<span class="cm">    Returns: {node: shortest_distance_from_start}"""</span>
+
+    dist = {node: <span class="fn">float</span>(<span class="st">'inf'</span>) <span class="kw">for</span> node <span class="kw">in</span> graph}
+    dist[start] = <span class="nm">0</span>
+    heap = [(<span class="nm">0</span>, start)]   <span class="cm"># (distance, node)</span>
+
+    <span class="kw">while</span> heap:
+        d, node = heapq.heappop(heap)
+        <span class="kw">if</span> d > dist[node]: <span class="kw">continue</span>   <span class="cm"># stale entry</span>
+
+        <span class="kw">for</span> neighbor, weight <span class="kw">in</span> graph[node]:
+            new_dist = d + weight
+            <span class="kw">if</span> new_dist < dist[neighbor]:
+                dist[neighbor] = new_dist
+                heapq.heappush(heap, (new_dist, neighbor))
+
+    <span class="kw">return</span> dist
+
+<span class="cm"># Road network with distances (km)</span>
+roads = {
+    <span class="st">"A"</span>: [(<span class="st">"B"</span>, <span class="nm">4</span>), (<span class="st">"C"</span>, <span class="nm">2</span>)],
+    <span class="st">"B"</span>: [(<span class="st">"C"</span>, <span class="nm">1</span>), (<span class="st">"D"</span>, <span class="nm">5</span>)],
+    <span class="st">"C"</span>: [(<span class="st">"B"</span>, <span class="nm">1</span>), (<span class="st">"D"</span>, <span class="nm">8</span>)],
+    <span class="st">"D"</span>: [],
+}
+<span class="fn">print</span>(dijkstra(roads, <span class="st">"A"</span>))
+<span class="cm"># {'A': 0, 'B': 3, 'C': 2, 'D': 8}  (A→C→B→D = 2+1+5=8)</span></code></pre>
+</section>
+
+<!-- ── GNN CONCEPTS ── -->
+<div class="section-marker" id="gnn-concepts">
+  <div class="marker-line"></div>
+  <span class="marker-label" style="color:var(--gnn-color)">Chapter 6</span>
+  <div class="marker-line"></div>
+</div>
+
+<section class="section">
+  <div class="chapter-header">
+    <div class="chapter-num">06</div>
+    <div class="chapter-meta">
+      <div class="chapter-tag tag-gnn">GNNs · Core Concept</div>
+      <h2>What is a Graph Neural Network?</h2>
+    </div>
+  </div>
+
+  <p>A regular neural network takes a fixed-size vector as input (like a row in a CSV). But what if your data is a graph — a molecule, a social network, a knowledge graph? The structure itself carries meaning.</p>
+
+  <div class="analogy">
+    <div class="analogy-tag">Real-world analogy</div>
+    <p>Imagine trying to understand a person just from their age, income, and hobbies (a flat vector). Now imagine also knowing who their friends are, and what THEIR friends are like. The graph structure gives you context that numbers alone can't. GNNs capture this.</p>
+  </div>
+
+  <h3>The Core Idea: Message Passing</h3>
+  <p>Every node in a GNN learns its representation by <strong>aggregating information from its neighbors</strong>. This is called message passing.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-content">
+        <h4>Initialize node features</h4>
+        <p>Each node starts with a feature vector — could be user age, atom type, or any attributes. Shape: [num_nodes × feature_dim]</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h4>Pass messages</h4>
+        <p>Each node sends its current feature vector to all its neighbors. Think of it as "broadcasting your state to people around you."</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h4>Aggregate</h4>
+        <p>Each node collects messages from all neighbors and combines them — by summing, averaging, or taking the max.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h4>Update</h4>
+        <p>Each node's feature vector is updated by passing the aggregated messages through a small neural network (learned weights).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h4>Repeat K times</h4>
+        <p>After K rounds of message passing, each node has "seen" information from nodes up to K hops away. K=2 means you know your neighbors' neighbors.</p>
+      </div>
+    </div>
+  </div>
+
+  <pre><span class="label">python — conceptual message passing (no ML library)</span><code><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Simple graph: 4 nodes, each with a 3-dim feature vector</span>
+node_features = np.array([
+    [<span class="nm">1.0</span>, <span class="nm">0.5</span>, <span class="nm">0.2</span>],   <span class="cm"># node 0</span>
+    [<span class="nm">0.3</span>, <span class="nm">0.8</span>, <span class="nm">0.1</span>],   <span class="cm"># node 1</span>
+    [<span class="nm">0.7</span>, <span class="nm">0.2</span>, <span class="nm">0.9</span>],   <span class="cm"># node 2</span>
+    [<span class="nm">0.4</span>, <span class="nm">0.6</span>, <span class="nm">0.3</span>],   <span class="cm"># node 3</span>
+])
+
+<span class="cm"># Adjacency list</span>
+neighbors = {<span class="nm">0</span>: [<span class="nm">1</span>, <span class="nm">2</span>], <span class="nm">1</span>: [<span class="nm">0</span>, <span class="nm">3</span>], <span class="nm">2</span>: [<span class="nm">0</span>, <span class="nm">3</span>], <span class="nm">3</span>: [<span class="nm">1</span>, <span class="nm">2</span>]}
+
+<span class="kw">def</span> <span class="fn">message_passing_round</span>(features, neighbors):
+    <span class="cm">"""One round: each node averages its neighbors' features"""</span>
+    new_features = np.zeros_like(features)
+    <span class="kw">for</span> node, nbrs <span class="kw">in</span> neighbors.items():
+        <span class="cm"># AGGREGATE: mean of neighbor features</span>
+        neighbor_feats = features[nbrs]
+        agg = neighbor_feats.mean(axis=<span class="nm">0</span>)
+        <span class="cm"># UPDATE: combine self + neighbors (no learned weights yet)</span>
+        new_features[node] = <span class="nm">0.5</span> * features[node] + <span class="nm">0.5</span> * agg
+    <span class="kw">return</span> new_features
+
+<span class="cm"># After 1 round, each node "knows" about its neighbors</span>
+h1 = message_passing_round(node_features, neighbors)
+<span class="cm"># After 2 rounds, each node knows about neighbors-of-neighbors</span>
+h2 = message_passing_round(h1, neighbors)
+
+<span class="fn">print</span>(<span class="st">"Before:"</span>, node_features[<span class="nm">0</span>])
+<span class="fn">print</span>(<span class="st">"After 2 rounds:"</span>, h2[<span class="nm">0</span>])</code></pre>
+
+  <div class="callout teal">
+    The key insight: after K rounds of message passing, node 0's representation reflects the entire K-hop neighborhood around it — the local subgraph structure. This is what GNNs "learn" to do effectively.
+  </div>
+</section>
+
+<!-- ── GNN ARCHITECTURES ── -->
+<div class="section-marker" id="gnn-architectures">
+  <div class="marker-line"></div>
+  <span class="marker-label" style="color:var(--gnn-color)">Chapter 7</span>
+  <div class="marker-line"></div>
+</div>
+
+<section class="section">
+  <div class="chapter-header">
+    <div class="chapter-num">07</div>
+    <div class="chapter-meta">
+      <div class="chapter-tag tag-gnn">GNNs · Architectures</div>
+      <h2>GCN, GAT & GraphSAGE</h2>
+    </div>
+  </div>
+
+  <h3>GCN — Graph Convolutional Network (2017)</h3>
+  <p>The foundational GNN. Each node updates its embedding by taking a <em>normalized weighted average</em> of its neighbors. The "convolutional" name is an analogy to image CNNs — both aggregate local context.</p>
+
+  <p>The core formula for one GCN layer:</p>
+  <pre><span class="label">math → then python</span><code><span class="cm"># H_new = σ( D^(-1/2) · A · D^(-1/2) · H · W )</span>
+<span class="cm">#</span>
+<span class="cm"># Where:</span>
+<span class="cm">#   H   = current node features matrix  [N × F]</span>
+<span class="cm">#   A   = adjacency matrix (with self-loops) [N × N]</span>
+<span class="cm">#   D   = degree matrix (diagonal) [N × N]</span>
+<span class="cm">#   W   = learnable weight matrix [F × F']</span>
+<span class="cm">#   σ   = activation function (ReLU)</span>
+<span class="cm">#</span>
+<span class="cm"># In plain English: aggregate neighbor features (normalized by</span>
+<span class="cm"># degree so high-degree nodes don't dominate), then transform</span>
+<span class="cm"># with a learned linear layer.</span>
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">gcn_layer_numpy</span>(A, H, W):
+    <span class="cm">"""Simplified GCN layer (no degree normalization for clarity)"""</span>
+    N = A.shape[<span class="nm">0</span>]
+    A_hat = A + np.eye(N)    <span class="cm"># add self-loops</span>
+    D = np.diag(A_hat.sum(axis=<span class="nm">1</span>))
+    D_inv_sqrt = np.diag(<span class="nm">1</span> / np.sqrt(np.diag(D)))
+    norm_A = D_inv_sqrt @ A_hat @ D_inv_sqrt
+
+    out = norm_A @ H @ W     <span class="cm"># aggregate + transform</span>
+    <span class="kw">return</span> np.maximum(<span class="nm">0</span>, out) <span class="cm"># ReLU activation</span></code></pre>
+
+  <h3>GAT — Graph Attention Network (2018)</h3>
+  <p>GCN treats all neighbors equally. GAT adds <strong>attention</strong>: it learns to weight neighbors differently. Some neighbors matter more than others.</p>
+
+  <div class="analogy">
+    <div class="analogy-tag">Real-world analogy</div>
+    <p>On Twitter, you follow 500 people — but when forming your opinion on a topic, you weight a domain expert's tweet much higher than a random account. GAT learns these attention weights from data.</p>
+  </div>
+
+  <pre><span class="label">python — GAT attention concept</span><code><span class="cm"># For each pair of connected nodes (i, j):</span>
+<span class="cm"># 1. Concatenate their transformed features</span>
+<span class="cm"># 2. Pass through a small learnable vector 'a'</span>
+<span class="cm"># 3. Apply softmax across all neighbors → attention coefficients</span>
+
+<span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+
+<span class="kw">def</span> <span class="fn">attention_coeff</span>(h_i, h_j, W, a):
+    <span class="cm">"""Compute attention weight from node i to node j"""</span>
+    Whi = W @ h_i    <span class="cm"># transform i's features</span>
+    Whj = W @ h_j    <span class="cm"># transform j's features</span>
+    concat = torch.cat([Whi, Whj])   <span class="cm"># [2F]</span>
+    e = F.leaky_relu(a @ concat)     <span class="cm"># scalar score</span>
+    <span class="kw">return</span> e   <span class="cm"># softmax applied across all neighbors later</span>
+
+<span class="cm"># Higher score → node j is more "important" for node i's update</span>
+<span class="cm"># GAT also uses multi-head attention — run K independent</span>
+<span class="cm"># attention mechanisms and concatenate results (like Transformers)</span></code></pre>
+
+  <h3>GraphSAGE — Inductive Learning (2017)</h3>
+  <p>GCN and GAT are <em>transductive</em> — they can't generalize to new nodes not seen during training. GraphSAGE is <em>inductive</em>: it learns a function to aggregate neighborhood features, so it works on new unseen nodes.</p>
+
+  <pre><span class="label">python — GraphSAGE sampling concept</span><code><span class="cm"># Instead of using ALL neighbors (expensive for large graphs),</span>
+<span class="cm"># GraphSAGE SAMPLES a fixed number of neighbors</span>
+
+<span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">sample_neighbors</span>(graph, node, k=<span class="nm">5</span>):
+    <span class="cm">"""Sample at most k neighbors for scalability"""</span>
+    nbrs = graph[node]
+    <span class="kw">return</span> random.sample(nbrs, min(k, len(nbrs)))
+
+<span class="kw">def</span> <span class="fn">sage_aggregate</span>(node_features, sampled_neighbors):
+    <span class="cm">"""Mean aggregator — average sampled neighbor features"""</span>
+    nbr_feats = [node_features[n] <span class="kw">for</span> n <span class="kw">in</span> sampled_neighbors]
+    <span class="kw">return</span> sum(nbr_feats) / len(nbr_feats)
+
+<span class="cm"># After aggregation, concatenate with own features and</span>
+<span class="cm"># apply a linear + normalization step</span>
+<span class="cm"># Key win: this works on graphs with millions of nodes</span>
+<span class="cm"># because you never need the full graph in memory at once</span></code></pre>
+
+  <h3>Comparison</h3>
+  <table>
+    <tr><th>Model</th><th>Aggregation</th><th>Scalability</th><th>Best For</th></tr>
+    <tr><td>GCN</td><td>Normalized mean of all neighbors</td><td>Medium</td><td>Small/medium citation networks</td></tr>
+    <tr><td>GAT</td><td>Weighted mean (learned attention)</td><td>Medium</td><td>When neighbor importance varies</td></tr>
+    <tr><td>GraphSAGE</td><td>Sampled neighbor mean/max/LSTM</td><td>High (millions of nodes)</td><td>Social networks, recommenders</td></tr>
+    <tr><td>GIN</td><td>Sum (most expressive)</td><td>Medium</td><td>Graph classification, molecules</td></tr>
+  </table>
+</section>
+
+<!-- ── GNN ADVANCED ── -->
+<div class="section-marker" id="gnn-advanced">
+  <div class="marker-line"></div>
+  <span class="marker-label" style="color:var(--gnn-color)">Chapter 8</span>
+  <div class="marker-line"></div>
+</div>
+
+<section class="section">
+  <div class="chapter-header">
+    <div class="chapter-num">08</div>
+    <div class="chapter-meta">
+      <div class="chapter-tag tag-gnn">GNNs · Advanced</div>
+      <h2>GNN Tasks & Training</h2>
+    </div>
+  </div>
+
+  <h3>Three Levels of GNN Predictions</h3>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🔵</div>
+      <h4>Node-Level</h4>
+      <p>Classify or predict properties of individual nodes. E.g. "Is this user a bot?" or "What community does this person belong to?"</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">↔️</div>
+      <h4>Edge-Level</h4>
+      <p>Predict if an edge should exist, or its type. E.g. "Will user A buy product B?" (recommendation systems)</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔮</div>
+      <h4>Graph-Level</h4>
+      <p>Make a prediction about the entire graph. E.g. "Is this molecule toxic?" — pooling all node embeddings into one vector.</p>
+    </div>
+  </div>
+
+  <h3>Graph Pooling</h3>
+  <p>For graph-level prediction, you need to collapse all node embeddings into one. This is called <em>readout</em> or <em>pooling</em>:</p>
+  <pre><span class="label">python</span><code><span class="kw">import</span> torch
+
+<span class="kw">def</span> <span class="fn">global_mean_pool</span>(node_embeddings):
+    <span class="cm">"""Average all node embeddings → one graph embedding"""</span>
+    <span class="kw">return</span> node_embeddings.mean(dim=<span class="nm">0</span>)
+
+<span class="kw">def</span> <span class="fn">global_sum_pool</span>(node_embeddings):
+    <span class="kw">return</span> node_embeddings.sum(dim=<span class="nm">0</span>)
+
+<span class="kw">def</span> <span class="fn">global_max_pool</span>(node_embeddings):
+    <span class="kw">return</span> node_embeddings.max(dim=<span class="nm">0</span>).values
+
+<span class="cm"># After pooling: pass graph embedding through a classifier</span>
+<span class="cm"># graph_embedding → Linear → softmax → is_toxic: yes/no</span></code></pre>
+
+  <h3>Semi-Supervised Learning on Graphs</h3>
+  <p>One of GNNs' superpowers: you can have a graph of 10,000 nodes, label only 200 of them, and the GNN learns from the unlabeled nodes' structure too. The labeled nodes "spread" their knowledge through message passing.</p>
+
+  <pre><span class="label">python — training loop concept</span><code><span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+
+<span class="kw">def</span> <span class="fn">train</span>(model, data, optimizer):
+    model.train()
+    optimizer.zero_grad()
+
+    <span class="cm"># Forward pass: all nodes get embeddings</span>
+    out = model(data.x, data.edge_index)
+
+    <span class="cm"># But we only compute loss on LABELED nodes (train_mask)</span>
+    <span class="cm"># data.train_mask = [True, False, True, ...]</span>
+    loss = F.cross_entropy(
+        out[data.train_mask],          <span class="cm"># predictions for labeled nodes</span>
+        data.y[data.train_mask]        <span class="cm"># ground truth labels</span>
+    )
+
+    loss.backward()   <span class="cm"># gradients flow through the entire graph</span>
+    optimizer.step()
+    <span class="kw">return</span> loss.item()
+
+<span class="kw">def</span> <span class="fn">evaluate</span>(model, data):
+    model.eval()
+    <span class="kw">with</span> torch.no_grad():
+        out = model(data.x, data.edge_index)
+        pred = out.argmax(dim=<span class="nm">1</span>)
+        correct = (pred[data.test_mask] == data.y[data.test_mask]).sum()
+        acc = correct / data.test_mask.sum()
+    <span class="kw">return</span> acc.item()</code></pre>
+
+  <h3>Over-Smoothing: The Main GNN Pitfall</h3>
+  <p>If you stack too many GNN layers, every node's embedding converges to nearly the same value — they've all aggregated information from so far across the graph that they look identical. Typically 2–4 layers is optimal.</p>
+
+  <pre><span class="label">python</span><code><span class="cm"># With K layers, a node aggregates from K-hop neighborhood</span>
+<span class="cm"># K=1: direct neighbors only</span>
+<span class="cm"># K=2: neighbors of neighbors (usually best)</span>
+<span class="cm"># K=6+: nearly the ENTIRE graph → all embeddings look the same</span>
+<span class="cm">#</span>
+<span class="cm"># Solutions:</span>
+<span class="cm"># 1. Limit to 2-4 layers</span>
+<span class="cm"># 2. Jumping Knowledge Networks (JK-Net) — combine all layer outputs</span>
+<span class="cm"># 3. DropEdge — randomly drop edges during training</span>
+<span class="cm"># 4. PairNorm — normalize to maintain diversity</span></code></pre>
+</section>
+
+<!-- ── PyTorch Geometric ── -->
+<div class="section-marker" id="pyg">
+  <div class="marker-line"></div>
+  <span class="marker-label" style="color:var(--gnn-color)">Chapter 9</span>
+  <div class="marker-line"></div>
+</div>
+
+<section class="section">
+  <div class="chapter-header">
+    <div class="chapter-num">09</div>
+    <div class="chapter-meta">
+      <div class="chapter-tag tag-gnn">GNNs · Production</div>
+      <h2>PyTorch Geometric — Building a Real GNN</h2>
+    </div>
+  </div>
+
+  <p>PyTorch Geometric (PyG) is the standard library for GNNs. It handles graph data structure, efficient message passing, and comes with 60+ benchmark datasets.</p>
+
+  <h3>Install</h3>
+  <pre><span class="label">shell</span><code>pip install torch torchvision torchaudio
+pip install torch_geometric</code></pre>
+
+  <h3>The Data Object</h3>
+  <p>PyG represents a graph as a <code>Data</code> object — think of it as a dict with specific keys:</p>
+  <pre><span class="label">python</span><code><span class="kw">from</span> torch_geometric.data <span class="kw">import</span> Data
+<span class="kw">import</span> torch
+
+<span class="cm"># A graph with 4 nodes, 4 edges</span>
+<span class="cm"># Node features: each node has a 2D feature vector</span>
+x = torch.tensor([
+    [<span class="nm">1.0</span>, <span class="nm">0.5</span>],   <span class="cm"># node 0</span>
+    [<span class="nm">0.3</span>, <span class="nm">0.8</span>],   <span class="cm"># node 1</span>
+    [<span class="nm">0.7</span>, <span class="nm">0.2</span>],   <span class="cm"># node 2</span>
+    [<span class="nm">0.4</span>, <span class="nm">0.6</span>],   <span class="cm"># node 3</span>
+], dtype=torch.float)
+
+<span class="cm"># Edge index: 2 × num_edges tensor (COO format)</span>
+<span class="cm"># Row 0 = source nodes, Row 1 = target nodes</span>
+<span class="cm"># Undirected: add both directions!</span>
+edge_index = torch.tensor([
+    [<span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">2</span>, <span class="nm">3</span>],   <span class="cm"># sources</span>
+    [<span class="nm">1</span>, <span class="nm">0</span>, <span class="nm">2</span>, <span class="nm">1</span>, <span class="nm">3</span>, <span class="nm">2</span>],   <span class="cm"># targets</span>
+], dtype=torch.long)
+
+<span class="cm"># Node labels (for classification)</span>
+y = torch.tensor([<span class="nm">0</span>, <span class="nm">1</span>, <span class="nm">0</span>, <span class="nm">1</span>])
+
+data = Data(x=x, edge_index=edge_index, y=y)
+<span class="fn">print</span>(data)
+<span class="cm"># Data(x=[4, 2], edge_index=[2, 6], y=[4])</span>
+<span class="fn">print</span>(data.num_nodes)   <span class="cm"># 4</span>
+<span class="fn">print</span>(data.num_edges)   <span class="cm"># 6</span></code></pre>
+
+  <h3>Complete GCN from Scratch with PyG</h3>
+  <pre><span class="label">python — full working GNN</span><code><span class="kw">import</span> torch
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+<span class="kw">from</span> torch_geometric.nn <span class="kw">import</span> GCNConv
+<span class="kw">from</span> torch_geometric.datasets <span class="kw">import</span> Planetoid
+
+<span class="cm"># Download Cora: 2708 papers, 5429 citation edges</span>
+<span class="cm"># Task: classify each paper into 7 categories</span>
+dataset = Planetoid(root=<span class="st">'/tmp/Cora'</span>, name=<span class="st">'Cora'</span>)
+data = dataset[<span class="nm">0</span>]
+
+<span class="cm"># ── Define the model ──</span>
+<span class="kw">class</span> <span class="cl">GCN</span>(torch.nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, in_channels, hidden, out_channels):
+        <span class="fn">super</span>().__init__()
+        <span class="kw">self</span>.conv1 = GCNConv(in_channels, hidden)
+        <span class="kw">self</span>.conv2 = GCNConv(hidden, out_channels)
+
+    <span class="kw">def</span> <span class="fn">forward</span>(<span class="kw">self</span>, x, edge_index):
+        <span class="cm"># Layer 1: aggregate 1-hop neighborhood</span>
+        x = <span class="kw">self</span>.conv1(x, edge_index)
+        x = F.relu(x)
+        x = F.dropout(x, p=<span class="nm">0.5</span>, training=<span class="kw">self</span>.training)
+        <span class="cm"># Layer 2: aggregate 2-hop neighborhood</span>
+        x = <span class="kw">self</span>.conv2(x, edge_index)
+        <span class="kw">return</span> F.log_softmax(x, dim=<span class="nm">1</span>)
+
+<span class="cm"># ── Setup ──</span>
+model = <span class="cl">GCN</span>(
+    in_channels=dataset.num_features,   <span class="cm"># 1433 word features</span>
+    hidden=<span class="nm">16</span>,
+    out_channels=dataset.num_classes    <span class="cm"># 7 categories</span>
+)
+optimizer = torch.optim.Adam(model.parameters(), lr=<span class="nm">0.01</span>, weight_decay=<span class="nm">5e-4</span>)
+
+<span class="cm"># ── Train ──</span>
+<span class="kw">for</span> epoch <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">200</span>):
+    model.train()
+    optimizer.zero_grad()
+    out = model(data.x, data.edge_index)
+    loss = F.nll_loss(out[data.train_mask], data.y[data.train_mask])
+    loss.backward()
+    optimizer.step()
+
+<span class="cm"># ── Evaluate ──</span>
+model.eval()
+pred = model(data.x, data.edge_index).argmax(dim=<span class="nm">1</span>)
+acc = (pred[data.test_mask] == data.y[data.test_mask]).float().mean()
+<span class="fn">print</span>(<span class="st">f"Test Accuracy: {acc:.4f}"</span>)  <span class="cm"># ~81%</span></code></pre>
+
+  <h3>Loading Custom Graph Datasets</h3>
+  <pre><span class="label">python — custom dataset</span><code><span class="kw">from</span> torch_geometric.data <span class="kw">import</span> Dataset, Data
+<span class="kw">import</span> torch, os
+
+<span class="kw">class</span> <span class="cl">MyGraphDataset</span>(Dataset):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, root, transform=<span class="kw">None</span>):
+        <span class="fn">super</span>().__init__(root, transform)
+
+    <span class="kw">def</span> <span class="fn">len</span>(<span class="kw">self</span>):
+        <span class="kw">return</span> <span class="nm">100</span>   <span class="cm"># number of graphs</span>
+
+    <span class="kw">def</span> <span class="fn">get</span>(<span class="kw">self</span>, idx):
+        <span class="cm"># Load graph idx from disk or generate programmatically</span>
+        <span class="cm"># In real use: load from your CSV, database, etc.</span>
+
+        <span class="cm"># Example: random graph</span>
+        num_nodes = torch.randint(<span class="nm">5</span>, <span class="nm">20</span>, (<span class="nm">1</span>,)).item()
+        x = torch.randn(num_nodes, <span class="nm">8</span>)           <span class="cm"># random features</span>
+        edge_index = torch.randint(<span class="nm">0</span>, num_nodes, (<span class="nm">2</span>, <span class="nm">20</span>))
+        y = torch.randint(<span class="nm">0</span>, <span class="nm">2</span>, (<span class="nm">1</span>,))           <span class="cm"># binary label</span>
+        <span class="kw">return</span> Data(x=x, edge_index=edge_index, y=y)
+
+<span class="cm"># Use with DataLoader for batching</span>
+<span class="kw">from</span> torch_geometric.loader <span class="kw">import</span> DataLoader
+
+dataset = <span class="cl">MyGraphDataset</span>(root=<span class="st">'/tmp/mygraphs'</span>)
+loader = DataLoader(dataset, batch_size=<span class="nm">32</span>, shuffle=<span class="kw">True</span>)
+
+<span class="kw">for</span> batch <span class="kw">in</span> loader:
+    <span class="fn">print</span>(batch)
+    <span class="cm"># Batch(x=[~400, 8], edge_index=[2, ~640], y=[32])</span>
+    <span class="cm"># PyG automatically merges 32 graphs into one big disconnected graph!</span>
+    <span class="kw">break</span></code></pre>
+
+  <div class="callout teal">
+    PyG's batching is clever: it merges multiple small graphs into one big disconnected graph, renumbering node indices, and adds a <code>batch</code> attribute telling you which node belongs to which graph. This is why the <code>global_mean_pool</code> function needs the <code>batch</code> vector to pool per-graph.
+  </div>
+</section>
+
+<!-- ── FINAL SUMMARY ── -->
+<div class="section-marker">
+  <div class="marker-line"></div>
+  <span class="marker-label" style="color:var(--accent3)">What's Next</span>
+  <div class="marker-line"></div>
+</div>
+
+<section class="section">
+  <div class="chapter-header">
+    <div class="chapter-num">→</div>
+    <div class="chapter-meta">
+      <div class="chapter-tag tag-both">Learning Path</div>
+      <h2>Where to Go From Here</h2>
+    </div>
+  </div>
+
+  <h3>Your Learning Ladder</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-content">
+        <h4>Master Python's built-in tree structures</h4>
+        <p>Heapq for priority queues. JSON parsing as tree traversal. HTML/XML parsing with BeautifulSoup (it's a tree walker). File system traversal with os.walk.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h4>Solve LeetCode tree problems</h4>
+        <p>Do "Easy" BST and traversal problems until recursion on trees feels natural. This builds the muscle memory you need for graph algorithms.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h4>Implement Dijkstra and BFS from scratch</h4>
+        <p>On a real-world dataset — like Indian city connectivity, or a dependency graph of Python packages.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h4>Run the Cora GCN example from Chapter 9</h4>
+        <p>The full training loop, with your own modifications — change hidden dim, number of layers, swap GCNConv for GATConv, observe how accuracy changes.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h4>Read the GNN experiment branch you started with</h4>
+        <p>Now you'll understand the dataset loaders, the model architectures, and the evaluation metrics. None of it will look like magic.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Key Papers to Read (in this order)</h3>
+  <table>
+    <tr><th>Paper</th><th>Year</th><th>Why it matters</th></tr>
+    <tr><td>Semi-Supervised Classification with Graph Convolutional Networks</td><td>2017</td><td>The GCN paper — foundational</td></tr>
+    <tr><td>Graph Attention Networks</td><td>2018</td><td>Adds attention to GCN</td></tr>
+    <tr><td>Inductive Representation Learning on Large Graphs (GraphSAGE)</td><td>2017</td><td>Scales to real-world graphs</td></tr>
+    <tr><td>How Powerful are Graph Neural Networks? (GIN)</td><td>2019</td><td>Theoretical foundations of expressiveness</td></tr>
+    <tr><td>Open Graph Benchmark (OGB)</td><td>2020</td><td>Standardized benchmarks for reproducible research</td></tr>
+  </table>
+
+  <div class="callout orange">
+    The single best thing you can do: pick ONE real dataset you care about — a social network, a codebase dependency graph, a molecular dataset — and try to make a GNN classify something in it. Nothing cements learning like debugging real failures.
+  </div>
+</section>
+
+<footer>
+  <div style="font-size:2rem;margin-bottom:1rem">🌳 → 🕸️ → 🧠</div>
+  Trees & Graph Neural Networks · Zero to Advanced<br>
+  <span style="opacity:0.5;margin-top:0.5rem;display:block">Built for Python developers entering the world of graph ML</span>
+</footer>
+
+<script>
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    document.getElementById('progress-bar').style.width = (scrolled / total * 100) + '%';
+  });
+</script>
+</body>
+</html>
