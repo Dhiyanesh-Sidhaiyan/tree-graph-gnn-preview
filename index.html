@@ -343,9 +343,72 @@ bst = <span class="cl">BST</span>()
 <span class="fn">print</span>(bst.search(<span class="nm">7</span>))   <span class="cm"># True</span>
 <span class="fn">print</span>(bst.search(<span class="nm">9</span>))   <span class="cm"># False</span></code></pre>
 
-  <!-- BALANCED TREE COMPARISON -->
-  <h3>Why Balanced Trees? (AVL)</h3>
-  <p>A plain BST degenerates when you insert sorted data. An AVL tree auto-rotates to keep height at O(log n).</p>
+  <!-- O(log n) EXPLAINER -->
+  <h3>What Does O(log n) Actually Mean?</h3>
+  <p>You'll see <code>O(log n)</code> everywhere in computer science. Before going further, let's make it completely concrete — no hand-waving.</p>
+
+  <div class="analogy">
+    <div class="analogy-tag">The phone book game</div>
+    <p>Someone picks a number from 1 to 1,000,000. You guess. They say "higher" or "lower". How many guesses do you need? If you always guess the midpoint, you need at most <strong>20 guesses</strong>. Not 500,000. Not 1,000,000. Twenty. That's O(log n) in action — each guess eliminates half the remaining possibilities.</p>
+  </div>
+
+  <div class="viz">
+    <svg viewBox="0 0 560 230" width="560" height="230">
+      <defs><marker id="ologarr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+      <!-- Title -->
+      <text x="280" y="14" text-anchor="middle" dominant-baseline="central" fill="#7a788a" font-family="JetBrains Mono" font-size="10">n items in list  →  max steps needed to find any value</text>
+
+      <!-- Column headers -->
+      <text x="80"  y="35" text-anchor="middle" dominant-baseline="central" fill="#7c6aff" font-family="JetBrains Mono" font-size="10" font-weight="700">n (list size)</text>
+      <text x="240" y="35" text-anchor="middle" dominant-baseline="central" fill="#f97316" font-family="JetBrains Mono" font-size="10" font-weight="700">O(n) — linear scan</text>
+      <text x="420" y="35" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="10" font-weight="700">O(log n) — BST search</text>
+      <line x1="20" y1="44" x2="540" y2="44" stroke="#2a2840" stroke-width="1"/>
+
+      <!-- Row 1 -->
+      <rect x="20" y="48" width="520" height="28" rx="3" fill="rgba(124,106,255,.04)"/>
+      <text x="80"  y="62" text-anchor="middle" dominant-baseline="central" fill="#c8c4e8" font-family="JetBrains Mono" font-size="11">10</text>
+      <text x="240" y="62" text-anchor="middle" dominant-baseline="central" fill="#f97316" font-family="JetBrains Mono" font-size="11">10 steps</text>
+      <text x="420" y="62" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11">4 steps</text>
+      <!-- Row 2 -->
+      <text x="80"  y="90" text-anchor="middle" dominant-baseline="central" fill="#c8c4e8" font-family="JetBrains Mono" font-size="11">100</text>
+      <text x="240" y="90" text-anchor="middle" dominant-baseline="central" fill="#f97316" font-family="JetBrains Mono" font-size="11">100 steps</text>
+      <text x="420" y="90" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11">7 steps</text>
+      <!-- Row 3 -->
+      <rect x="20" y="104" width="520" height="28" rx="3" fill="rgba(124,106,255,.04)"/>
+      <text x="80"  y="118" text-anchor="middle" dominant-baseline="central" fill="#c8c4e8" font-family="JetBrains Mono" font-size="11">1,000</text>
+      <text x="240" y="118" text-anchor="middle" dominant-baseline="central" fill="#f97316" font-family="JetBrains Mono" font-size="11">1,000 steps</text>
+      <text x="420" y="118" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11">10 steps</text>
+      <!-- Row 4 -->
+      <text x="80"  y="146" text-anchor="middle" dominant-baseline="central" fill="#c8c4e8" font-family="JetBrains Mono" font-size="11">1,000,000</text>
+      <text x="240" y="146" text-anchor="middle" dominant-baseline="central" fill="#f97316" font-family="JetBrains Mono" font-size="11">1,000,000 steps</text>
+      <text x="420" y="146" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11">20 steps</text>
+      <!-- Row 5 - dramatic -->
+      <rect x="20" y="160" width="520" height="32" rx="3" fill="rgba(45,212,191,.06)" stroke="rgba(45,212,191,.2)" stroke-width="1"/>
+      <text x="80"  y="176" text-anchor="middle" dominant-baseline="central" fill="#c8c4e8" font-family="JetBrains Mono" font-size="11">1,000,000,000</text>
+      <text x="240" y="176" text-anchor="middle" dominant-baseline="central" fill="#f97316" font-family="JetBrains Mono" font-size="11">1 billion steps 😱</text>
+      <text x="420" y="176" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11" font-weight="700">30 steps 🚀</text>
+
+      <!-- Key insight -->
+      <text x="280" y="208" text-anchor="middle" dominant-baseline="central" fill="#7a788a" font-family="JetBrains Mono" font-size="9">log₂(1,000,000,000) ≈ 30  —  doubling n only adds 1 extra step</text>
+      <text x="280" y="222" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">the trick: each comparison cuts the remaining work in half</text>
+    </svg>
+    <div class="viz-label">O(n) grows linearly with data — O(log n) barely grows at all. That's why BST search is fast and why we care so much about tree height.</div>
+  </div>
+
+  <p>The formula is simple: <code>log₂(n)</code> tells you how many times you can cut <code>n</code> in half before reaching 1. With 1 billion nodes, you can always find any value in 30 comparisons — as long as the tree stays balanced.</p>
+
+  <div class="callout orange">
+    <strong>Why does tree height = number of steps?</strong> In a BST, every search starts at the root and goes down exactly one level per comparison. The maximum number of comparisons = the height of the tree. A balanced tree of n nodes has height ≈ log₂(n). An unbalanced one can have height n — turning your O(log n) search into O(n).
+  </div>
+
+  <!-- AVL DEEP DIVE -->
+  <h3>Why Balanced Trees? (AVL) — The Full Story</h3>
+  <p>The BST rule (left &lt; parent &lt; right) says nothing about <em>shape</em>. You could have a valid BST that looks like a straight line — and it would be completely useless for fast search. AVL trees enforce shape.</p>
+
+  <div class="analogy">
+    <div class="analogy-tag">Real-world analogy</div>
+    <p>Imagine a library organised by Dewey Decimal — that's the BST property (sorted order). Now imagine all the books on the <em>same shelf</em>, arranged in a single long row, versus a multi-shelf bookcase where each shelf holds roughly the same number. Both are "sorted", but finding a book on the balanced shelves takes far fewer steps. AVL enforces the multi-shelf layout automatically.</p>
+  </div>
 
   <div class="viz">
     <svg viewBox="0 0 560 290" width="560" height="290">
@@ -416,7 +479,114 @@ bst = <span class="cl">BST</span>()
       <text x="420" y="250" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">bf = balance factor. Auto-rotates when bf becomes ±2.</text>
       <text x="420" y="264" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">Python dict uses Red-Black (same idea, different color rules).</text>
     </svg>
-    <div class="viz-label">Sorted insert (1,2,3,4,5) breaks a plain BST into a linked list. AVL auto-rotates to keep the tree balanced.</div>
+    <div class="viz-label">Sorted insert (1,2,3,4,5) breaks a plain BST into a linked list — O(n) search. AVL auto-rotates to keep the tree balanced — O(log n) guaranteed.</div>
+  </div>
+
+  <h3>The Balance Factor — AVL's Secret Sensor</h3>
+  <p>Every node in an AVL tree carries one extra number: its <strong>balance factor (bf)</strong>.</p>
+
+  <pre><span class="label">concept</span><code><span class="cm"># balance_factor = height(left_subtree) - height(right_subtree)</span>
+<span class="cm">#</span>
+<span class="cm"># bf =  0  → perfectly balanced at this node</span>
+<span class="cm"># bf =  1  → left side one level deeper — still OK</span>
+<span class="cm"># bf = -1  → right side one level deeper — still OK</span>
+<span class="cm"># bf =  2  → left side TWO levels deeper → ROTATE! (left-heavy)</span>
+<span class="cm"># bf = -2  → right side TWO levels deeper → ROTATE! (right-heavy)</span>
+<span class="cm">#</span>
+<span class="cm"># AVL rule: |bf| must be ≤ 1 at EVERY node, always.</span></code></pre>
+
+  <h3>What is a Rotation? (The Fix-It Operation)</h3>
+  <p>When inserting a node pushes a balance factor to ±2, AVL performs a <strong>rotation</strong> — a local restructuring of 3 nodes that restores balance without breaking the BST ordering rule.</p>
+
+  <div class="viz">
+    <svg viewBox="0 0 560 220" width="560" height="220">
+      <defs><marker id="rotarr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+      <!-- BEFORE rotation (left-heavy, bf=2) -->
+      <text x="115" y="14" text-anchor="middle" dominant-baseline="central" fill="#f97316" font-family="JetBrains Mono" font-size="10" font-weight="700">BEFORE — left-heavy (bf=2)</text>
+      <text x="115" y="27" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">inserted 1,2,3 in descending order</text>
+      <!-- edges -->
+      <line x1="115" y1="62" x2="80" y2="108" stroke="#804020" stroke-width="2"/>
+      <line x1="80" y1="128" x2="55" y2="172" stroke="#804020" stroke-width="2"/>
+      <!-- nodes -->
+      <circle cx="115" cy="50" r="22" fill="rgba(249,115,22,.2)" stroke="#f97316" stroke-width="2"/>
+      <text x="115" y="50" text-anchor="middle" dominant-baseline="central" fill="#f97316" font-family="JetBrains Mono" font-size="14" font-weight="700">3</text>
+      <text x="142" y="44" fill="#f97316" font-family="JetBrains Mono" font-size="8">bf=2 !</text>
+      <circle cx="80" cy="118" r="20" fill="rgba(249,115,22,.15)" stroke="#c06020" stroke-width="1.5"/>
+      <text x="80" y="118" text-anchor="middle" dominant-baseline="central" fill="#d08040" font-family="JetBrains Mono" font-size="13">2</text>
+      <text x="104" y="112" fill="#f97316" font-family="JetBrains Mono" font-size="8">bf=1</text>
+      <circle cx="55" cy="180" r="18" fill="rgba(249,115,22,.1)" stroke="#804020" stroke-width="1.5"/>
+      <text x="55" y="180" text-anchor="middle" dominant-baseline="central" fill="#a06030" font-family="JetBrains Mono" font-size="13">1</text>
+      <text x="77" y="174" fill="#4a4870" font-family="JetBrains Mono" font-size="8">bf=0</text>
+      <!-- problem label -->
+      <text x="115" y="205" text-anchor="middle" dominant-baseline="central" fill="#f97316" font-family="JetBrains Mono" font-size="9">root bf=2 → trigger RIGHT rotation</text>
+
+      <!-- arrow -->
+      <line x1="210" y1="110" x2="262" y2="110" stroke="#2dd4bf" stroke-width="2.5" marker-end="url(#rotarr)"/>
+      <text x="236" y="98" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="9">right</text>
+      <text x="236" y="110" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="9">rotate</text>
+      <text x="236" y="122" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="8">O(1) !</text>
+
+      <!-- AFTER rotation -->
+      <text x="420" y="14" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="10" font-weight="700">AFTER — balanced ✓</text>
+      <text x="420" y="27" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">2 becomes new root, BST order still valid</text>
+      <!-- edges -->
+      <line x1="420" y1="62" x2="358" y2="108" stroke="#265050" stroke-width="2"/>
+      <line x1="420" y1="62" x2="482" y2="108" stroke="#265050" stroke-width="2"/>
+      <!-- nodes -->
+      <circle cx="420" cy="50" r="22" fill="rgba(45,212,191,.25)" stroke="#2dd4bf" stroke-width="2"/>
+      <text x="420" y="50" text-anchor="middle" dominant-baseline="central" fill="#a0f0e8" font-family="JetBrains Mono" font-size="14" font-weight="700">2</text>
+      <text x="447" y="44" fill="#2dd4bf" font-family="JetBrains Mono" font-size="8">bf=0 ✓</text>
+      <circle cx="358" cy="118" r="20" fill="rgba(45,212,191,.16)" stroke="#2dd4bf" stroke-width="1.5"/>
+      <text x="358" y="118" text-anchor="middle" dominant-baseline="central" fill="#80e8df" font-family="JetBrains Mono" font-size="13">1</text>
+      <text x="334" y="112" fill="#2dd4bf" font-family="JetBrains Mono" font-size="8">bf=0</text>
+      <circle cx="482" cy="118" r="20" fill="rgba(45,212,191,.16)" stroke="#2dd4bf" stroke-width="1.5"/>
+      <text x="482" y="118" text-anchor="middle" dominant-baseline="central" fill="#80e8df" font-family="JetBrains Mono" font-size="13">3</text>
+      <text x="504" y="112" fill="#2dd4bf" font-family="JetBrains Mono" font-size="8">bf=0</text>
+      <!-- BST check annotation -->
+      <text x="420" y="155" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">BST property still holds:</text>
+      <text x="420" y="168" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">1 &lt; 2 &lt; 3  ✓   height = 2   ✓</text>
+      <text x="420" y="185" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="9">rotation only rewires 3 pointers — takes O(1) time</text>
+      <text x="420" y="200" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">happens automatically on every insert/delete</text>
+    </svg>
+    <div class="viz-label">A right rotation: the left child (2) takes the root's place. The old root (3) becomes the right child. BST ordering is preserved. Only pointer rewiring — O(1).</div>
+  </div>
+
+  <p>There are four rotation cases (left, right, left-right, right-left), but Python's standard library handles all of this for you via the <code>sortedcontainers</code> library. In practice, you <em>use</em> AVL trees without implementing rotations yourself.</p>
+
+  <pre><span class="label">python</span><code><span class="cm"># You never write AVL yourself in Python —</span>
+<span class="cm"># use sortedcontainers which is a balanced BST under the hood</span>
+<span class="cm"># pip install sortedcontainers</span>
+
+<span class="kw">from</span> sortedcontainers <span class="kw">import</span> SortedList
+
+sl = SortedList([<span class="nm">5</span>, <span class="nm">3</span>, <span class="nm">8</span>, <span class="nm">1</span>, <span class="nm">9</span>, <span class="nm">2</span>])
+
+<span class="cm"># All O(log n) — no matter the insertion order</span>
+sl.add(<span class="nm">4</span>)          <span class="cm"># insert</span>
+<span class="fn">print</span>(<span class="nm">3</span> <span class="kw">in</span> sl)   <span class="cm"># True — O(log n) search</span>
+sl.discard(<span class="nm">5</span>)     <span class="cm"># delete</span>
+
+<span class="cm"># Python's built-in dict and set use hash tables (O(1) avg)</span>
+<span class="cm"># Use SortedList when you need ORDERED operations:</span>
+<span class="cm"># "find all values between 3 and 8" — that's O(log n + k)</span>
+result = list(sl.irange(<span class="nm">3</span>, <span class="nm">8</span>))
+<span class="fn">print</span>(result)  <span class="cm"># [3, 4, 8]</span>
+
+<span class="cm"># Real-world example: sliding window maximum, range queries</span>
+<span class="cm"># These are impossible to do efficiently with a plain list or dict</span></code></pre>
+
+  <h3>AVL vs Other Balanced Trees — Quick Reference</h3>
+  <table>
+    <tr><th>Tree</th><th>Balance guarantee</th><th>Where you'll encounter it</th><th>Key tradeoff</th></tr>
+    <tr><td>AVL</td><td>Strictly balanced (bf ≤ 1)</td><td>In-memory databases, competitive programming</td><td>Faster reads, slightly slower inserts</td></tr>
+    <tr><td>Red-Black</td><td>Loosely balanced (height ≤ 2·log n)</td><td>Python <code>dict</code> (CPython 3.6+ internals), Java <code>TreeMap</code>, Linux scheduler</td><td>Fewer rotations, faster inserts</td></tr>
+    <tr><td>B-Tree</td><td>All leaves at same depth</td><td>Every SQL database (Postgres, MySQL, SQLite indexes)</td><td>Designed for disk — each node holds many keys</td></tr>
+    <tr><td>Skip List</td><td>Probabilistic, expected O(log n)</td><td>Redis sorted sets, LevelDB</td><td>Simpler to implement, good cache performance</td></tr>
+  </table>
+
+  <div class="callout teal">
+    <strong>The honest takeaway:</strong> You rarely implement these yourself. But understanding them tells you <em>why</em> a database index is fast, why Python dicts don't slow down as they grow, and why an unindexed SQL column causes full table scans. These trees are the engine behind most of the "just works" performance in software.
   </div>
 
   <!-- TRIE -->
@@ -670,85 +840,98 @@ trie = <span class="cl">Trie</span>()
   <div class="analogy"><div class="analogy-tag">Real-world analogy</div><p>A hospital ER triage queue. The most critical patient is always at the front, no matter when they arrived. When they leave, the next most critical takes the top spot automatically. That's a min-heap on severity score.</p></div>
 
   <div class="viz">
-    <svg viewBox="0 0 560 300" width="560" height="300">
+    <svg viewBox="0 0 560 310" width="560" height="310">
       <defs><marker id="arr6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
-      <!-- MAX-HEAP left -->
-      <text x="115" y="16" text-anchor="middle" dominant-baseline="central" fill="#7c6aff" font-family="JetBrains Mono" font-size="11" font-weight="700">MAX-HEAP</text>
-      <text x="115" y="28" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">parent ≥ children always</text>
-      <line x1="115" y1="62" x2="62" y2="108" stroke="#3d3860" stroke-width="1.5"/>
-      <line x1="115" y1="62" x2="168" y2="108" stroke="#3d3860" stroke-width="1.5"/>
-      <line x1="62" y1="124" x2="36" y2="170" stroke="#3d3860" stroke-width="1.5"/>
-      <line x1="62" y1="124" x2="88" y2="170" stroke="#3d3860" stroke-width="1.5"/>
-      <line x1="168" y1="124" x2="144" y2="170" stroke="#3d3860" stroke-width="1.5"/>
-      <line x1="168" y1="124" x2="194" y2="170" stroke="#3d3860" stroke-width="1.5"/>
-      <circle cx="115" cy="48" r="22" fill="rgba(124,106,255,.3)" stroke="#7c6aff" stroke-width="2"/>
-      <text x="115" y="48" text-anchor="middle" dominant-baseline="central" fill="#d0c8ff" font-family="JetBrains Mono" font-size="14" font-weight="700">90</text>
-      <circle cx="62" cy="116" r="20" fill="rgba(124,106,255,.2)" stroke="#7c6aff" stroke-width="1.5"/>
-      <text x="62" y="116" text-anchor="middle" dominant-baseline="central" fill="#c4b8ff" font-family="JetBrains Mono" font-size="13">70</text>
-      <circle cx="168" cy="116" r="20" fill="rgba(124,106,255,.2)" stroke="#7c6aff" stroke-width="1.5"/>
-      <text x="168" y="116" text-anchor="middle" dominant-baseline="central" fill="#c4b8ff" font-family="JetBrains Mono" font-size="13">60</text>
-      <circle cx="36" cy="182" r="18" fill="rgba(124,106,255,.1)" stroke="#5a50a0" stroke-width="1.5"/>
-      <text x="36" y="182" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="12">50</text>
-      <circle cx="88" cy="182" r="18" fill="rgba(124,106,255,.1)" stroke="#5a50a0" stroke-width="1.5"/>
-      <text x="88" y="182" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="12">40</text>
-      <circle cx="144" cy="182" r="18" fill="rgba(124,106,255,.1)" stroke="#5a50a0" stroke-width="1.5"/>
-      <text x="144" y="182" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="12">30</text>
-      <circle cx="194" cy="182" r="18" fill="rgba(124,106,255,.1)" stroke="#5a50a0" stroke-width="1.5"/>
-      <text x="194" y="182" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="12">20</text>
-      <!-- array representation -->
-      <text x="115" y="218" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">stored as plain array (no Node objects!):</text>
-      <rect x="10"  y="226" width="30" height="24" rx="3" fill="rgba(124,106,255,.25)" stroke="#7c6aff" stroke-width="1"/>
-      <text x="25"  y="238" text-anchor="middle" dominant-baseline="central" fill="#c4b8ff" font-family="JetBrains Mono" font-size="10">90</text>
-      <rect x="42"  y="226" width="28" height="24" rx="3" fill="rgba(124,106,255,.15)" stroke="#5a50a0" stroke-width="1"/>
-      <text x="56"  y="238" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="10">70</text>
-      <rect x="72"  y="226" width="28" height="24" rx="3" fill="rgba(124,106,255,.15)" stroke="#5a50a0" stroke-width="1"/>
-      <text x="86"  y="238" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="10">60</text>
-      <rect x="102" y="226" width="28" height="24" rx="3" fill="rgba(124,106,255,.08)" stroke="#3d3860" stroke-width="1"/>
-      <text x="116" y="238" text-anchor="middle" dominant-baseline="central" fill="#7a788a" font-family="JetBrains Mono" font-size="10">50</text>
-      <rect x="132" y="226" width="28" height="24" rx="3" fill="rgba(124,106,255,.08)" stroke="#3d3860" stroke-width="1"/>
-      <text x="146" y="238" text-anchor="middle" dominant-baseline="central" fill="#7a788a" font-family="JetBrains Mono" font-size="10">40</text>
-      <rect x="162" y="226" width="28" height="24" rx="3" fill="rgba(124,106,255,.08)" stroke="#3d3860" stroke-width="1"/>
-      <text x="176" y="238" text-anchor="middle" dominant-baseline="central" fill="#7a788a" font-family="JetBrains Mono" font-size="10">30</text>
-      <rect x="192" y="226" width="28" height="24" rx="3" fill="rgba(124,106,255,.08)" stroke="#3d3860" stroke-width="1"/>
-      <text x="206" y="238" text-anchor="middle" dominant-baseline="central" fill="#7a788a" font-family="JetBrains Mono" font-size="10">20</text>
-      <text x="25" y="258" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[0]</text>
-      <text x="56" y="258" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[1]</text>
-      <text x="86" y="258" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[2]</text>
-      <text x="116" y="258" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[3]</text>
-      <text x="146" y="258" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[4]</text>
-      <text x="176" y="258" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[5]</text>
-      <text x="206" y="258" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[6]</text>
-      <text x="110"  y="272" text-anchor="middle" fill="#4a4870" font-family="JetBrains Mono" font-size="8">parent(i)=(i-1)//2   left=2i+1   right=2i+2</text>
 
-      <!-- divider -->
-      <line x1="280" y1="8" x2="280" y2="295" stroke="#2a2840" stroke-width="1" stroke-dasharray="4,3"/>
+      <!-- ── MAX-HEAP (left half, centered at x=115) ── -->
+      <text x="115" y="14" text-anchor="middle" dominant-baseline="central" fill="#7c6aff" font-family="JetBrains Mono" font-size="11" font-weight="700">MAX-HEAP</text>
+      <text x="115" y="26" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">parent ≥ children always</text>
+      <!-- edges -->
+      <line x1="115" y1="68" x2="64" y2="112" stroke="#3d3860" stroke-width="1.5"/>
+      <line x1="115" y1="68" x2="166" y2="112" stroke="#3d3860" stroke-width="1.5"/>
+      <line x1="64" y1="130" x2="38" y2="178" stroke="#3d3860" stroke-width="1.5"/>
+      <line x1="64" y1="130" x2="90" y2="178" stroke="#3d3860" stroke-width="1.5"/>
+      <line x1="166" y1="130" x2="142" y2="178" stroke="#3d3860" stroke-width="1.5"/>
+      <line x1="166" y1="130" x2="192" y2="178" stroke="#3d3860" stroke-width="1.5"/>
+      <!-- root 90 -->
+      <circle cx="115" cy="52" r="22" fill="rgba(124,106,255,.3)" stroke="#7c6aff" stroke-width="2"/>
+      <text x="115" y="52" text-anchor="middle" dominant-baseline="central" fill="#d0c8ff" font-family="JetBrains Mono" font-size="14" font-weight="700">90</text>
+      <!-- level 1 -->
+      <circle cx="64" cy="120" r="20" fill="rgba(124,106,255,.2)" stroke="#7c6aff" stroke-width="1.5"/>
+      <text x="64" y="120" text-anchor="middle" dominant-baseline="central" fill="#c4b8ff" font-family="JetBrains Mono" font-size="13">70</text>
+      <circle cx="166" cy="120" r="20" fill="rgba(124,106,255,.2)" stroke="#7c6aff" stroke-width="1.5"/>
+      <text x="166" y="120" text-anchor="middle" dominant-baseline="central" fill="#c4b8ff" font-family="JetBrains Mono" font-size="13">60</text>
+      <!-- level 2 -->
+      <circle cx="38" cy="188" r="18" fill="rgba(124,106,255,.1)" stroke="#5a50a0" stroke-width="1.5"/>
+      <text x="38" y="188" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="12">50</text>
+      <circle cx="90" cy="188" r="18" fill="rgba(124,106,255,.1)" stroke="#5a50a0" stroke-width="1.5"/>
+      <text x="90" y="188" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="12">40</text>
+      <circle cx="142" cy="188" r="18" fill="rgba(124,106,255,.1)" stroke="#5a50a0" stroke-width="1.5"/>
+      <text x="142" y="188" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="12">30</text>
+      <circle cx="192" cy="188" r="18" fill="rgba(124,106,255,.1)" stroke="#5a50a0" stroke-width="1.5"/>
+      <text x="192" y="188" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="12">20</text>
+      <!-- array repr -->
+      <text x="115" y="222" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">stored as plain array (no Node objects!):</text>
+      <rect x="10"  y="230" width="30" height="24" rx="3" fill="rgba(124,106,255,.25)" stroke="#7c6aff" stroke-width="1"/>
+      <text x="25"  y="242" text-anchor="middle" dominant-baseline="central" fill="#c4b8ff" font-family="JetBrains Mono" font-size="10">90</text>
+      <rect x="42"  y="230" width="28" height="24" rx="3" fill="rgba(124,106,255,.15)" stroke="#5a50a0" stroke-width="1"/>
+      <text x="56"  y="242" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="10">70</text>
+      <rect x="72"  y="230" width="28" height="24" rx="3" fill="rgba(124,106,255,.15)" stroke="#5a50a0" stroke-width="1"/>
+      <text x="86"  y="242" text-anchor="middle" dominant-baseline="central" fill="#a89cff" font-family="JetBrains Mono" font-size="10">60</text>
+      <rect x="102" y="230" width="28" height="24" rx="3" fill="rgba(124,106,255,.08)" stroke="#3d3860" stroke-width="1"/>
+      <text x="116" y="242" text-anchor="middle" dominant-baseline="central" fill="#7a788a" font-family="JetBrains Mono" font-size="10">50</text>
+      <rect x="132" y="230" width="28" height="24" rx="3" fill="rgba(124,106,255,.08)" stroke="#3d3860" stroke-width="1"/>
+      <text x="146" y="242" text-anchor="middle" dominant-baseline="central" fill="#7a788a" font-family="JetBrains Mono" font-size="10">40</text>
+      <rect x="162" y="230" width="28" height="24" rx="3" fill="rgba(124,106,255,.08)" stroke="#3d3860" stroke-width="1"/>
+      <text x="176" y="242" text-anchor="middle" dominant-baseline="central" fill="#7a788a" font-family="JetBrains Mono" font-size="10">30</text>
+      <rect x="192" y="230" width="28" height="24" rx="3" fill="rgba(124,106,255,.08)" stroke="#3d3860" stroke-width="1"/>
+      <text x="206" y="242" text-anchor="middle" dominant-baseline="central" fill="#7a788a" font-family="JetBrains Mono" font-size="10">20</text>
+      <text x="25"  y="262" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[0]</text>
+      <text x="56"  y="262" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[1]</text>
+      <text x="86"  y="262" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[2]</text>
+      <text x="116" y="262" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[3]</text>
+      <text x="146" y="262" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[4]</text>
+      <text x="176" y="262" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[5]</text>
+      <text x="206" y="262" text-anchor="middle" fill="#3d3860" font-family="JetBrains Mono" font-size="8">[6]</text>
+      <text x="115" y="278" text-anchor="middle" fill="#4a4870" font-family="JetBrains Mono" font-size="8">parent(i)=(i-1)//2   left=2i+1   right=2i+2</text>
 
-      <!-- MIN-HEAP right (Python heapq) -->
-      <text x="420" y="16" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11" font-weight="700">MIN-HEAP (Python heapq)</text>
-      <text x="420" y="28" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">smallest always at root — heappop() returns it</text>
-      <line x1="420" y1="62" x2="368" y2="108" stroke="#265050" stroke-width="1.5"/>
-      <line x1="420" y1="62" x2="472" y2="108" stroke="#265050" stroke-width="1.5"/>
-      <line x1="368" y1="124" x2="342" y2="170" stroke="#265050" stroke-width="1.5"/>
-      <line x1="368" y1="124" x2="394" y2="170" stroke="#265050" stroke-width="1.5"/>
-      <line x1="472" y1="124" x2="448" y2="170" stroke="#265050" stroke-width="1.5"/>
-      <line x1="472" y1="124" x2="498" y2="170" stroke="#265050" stroke-width="1.5"/>
-      <circle cx="420" cy="48" r="22" fill="rgba(45,212,191,.3)" stroke="#2dd4bf" stroke-width="2.5"/>
-      <text x="420" y="48" text-anchor="middle" dominant-baseline="central" fill="#a0f0e8" font-family="JetBrains Mono" font-size="14" font-weight="700">1</text>
-      <text x="510" y="42" text-anchor="end" fill="#2dd4bf" font-family="JetBrains Mono" font-size="8">← heappop() returns root</text>
-      <circle cx="368" cy="116" r="20" fill="rgba(45,212,191,.18)" stroke="#2dd4bf" stroke-width="1.5"/>
-      <text x="368" y="116" text-anchor="middle" dominant-baseline="central" fill="#80e8df" font-family="JetBrains Mono" font-size="13">3</text>
-      <circle cx="472" cy="116" r="20" fill="rgba(45,212,191,.18)" stroke="#2dd4bf" stroke-width="1.5"/>
-      <text x="472" y="116" text-anchor="middle" dominant-baseline="central" fill="#80e8df" font-family="JetBrains Mono" font-size="13">2</text>
-      <circle cx="342" cy="182" r="18" fill="rgba(45,212,191,.08)" stroke="#265050" stroke-width="1.5"/>
-      <text x="342" y="182" text-anchor="middle" dominant-baseline="central" fill="#4a9a94" font-family="JetBrains Mono" font-size="12">7</text>
-      <circle cx="394" cy="182" r="18" fill="rgba(45,212,191,.08)" stroke="#265050" stroke-width="1.5"/>
-      <text x="394" y="182" text-anchor="middle" dominant-baseline="central" fill="#4a9a94" font-family="JetBrains Mono" font-size="12">4</text>
-      <circle cx="448" cy="182" r="18" fill="rgba(45,212,191,.08)" stroke="#265050" stroke-width="1.5"/>
-      <text x="448" y="182" text-anchor="middle" dominant-baseline="central" fill="#4a9a94" font-family="JetBrains Mono" font-size="12">9</text>
-      <circle cx="498" cy="182" r="18" fill="rgba(45,212,191,.08)" stroke="#265050" stroke-width="1.5"/>
-      <text x="498" y="182" text-anchor="middle" dominant-baseline="central" fill="#4a9a94" font-family="JetBrains Mono" font-size="12">5</text>
-      <text x="420" y="220" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="9">heappush(x): insert &amp; re-heapify in O(log n)</text>
-      <text x="420" y="235" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="9">heappop(): remove min &amp; re-heapify in O(log n)</text>
+      <!-- ── divider ── -->
+      <line x1="280" y1="6" x2="280" y2="304" stroke="#2a2840" stroke-width="1" stroke-dasharray="4,3"/>
+
+      <!-- ── MIN-HEAP (right half, centered at x=420) ── -->
+      <!-- Title and subtitle placed well ABOVE the root node (root is at cy=80) -->
+      <text x="420" y="14" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11" font-weight="700">MIN-HEAP</text>
+      <text x="420" y="26" text-anchor="middle" dominant-baseline="central" fill="#4a4870" font-family="JetBrains Mono" font-size="9">Python heapq — smallest always at root</text>
+      <!-- edges — root moved down to cy=80 to give clear room below the title text -->
+      <line x1="420" y1="100" x2="368" y2="140" stroke="#265050" stroke-width="1.5"/>
+      <line x1="420" y1="100" x2="472" y2="140" stroke="#265050" stroke-width="1.5"/>
+      <line x1="368" y1="158" x2="342" y2="200" stroke="#265050" stroke-width="1.5"/>
+      <line x1="368" y1="158" x2="394" y2="200" stroke="#265050" stroke-width="1.5"/>
+      <line x1="472" y1="158" x2="448" y2="200" stroke="#265050" stroke-width="1.5"/>
+      <line x1="472" y1="158" x2="498" y2="200" stroke="#265050" stroke-width="1.5"/>
+      <!-- root node 1 — cy=80, clear gap from subtitle at y=26 -->
+      <circle cx="420" cy="80" r="22" fill="rgba(45,212,191,.3)" stroke="#2dd4bf" stroke-width="2.5"/>
+      <text x="420" y="80" text-anchor="middle" dominant-baseline="central" fill="#a0f0e8" font-family="JetBrains Mono" font-size="14" font-weight="700">1</text>
+      <!-- "heappop() always pops this" label — to the right of the root, clear of node -->
+      <text x="448" y="68" fill="#2dd4bf" font-family="JetBrains Mono" font-size="8">← heappop()</text>
+      <text x="448" y="80" fill="#2dd4bf" font-family="JetBrains Mono" font-size="8">  returns this</text>
+      <!-- level 1 -->
+      <circle cx="368" cy="148" r="20" fill="rgba(45,212,191,.18)" stroke="#2dd4bf" stroke-width="1.5"/>
+      <text x="368" y="148" text-anchor="middle" dominant-baseline="central" fill="#80e8df" font-family="JetBrains Mono" font-size="13">3</text>
+      <circle cx="472" cy="148" r="20" fill="rgba(45,212,191,.18)" stroke="#2dd4bf" stroke-width="1.5"/>
+      <text x="472" y="148" text-anchor="middle" dominant-baseline="central" fill="#80e8df" font-family="JetBrains Mono" font-size="13">2</text>
+      <!-- level 2 -->
+      <circle cx="342" cy="210" r="18" fill="rgba(45,212,191,.08)" stroke="#265050" stroke-width="1.5"/>
+      <text x="342" y="210" text-anchor="middle" dominant-baseline="central" fill="#4a9a94" font-family="JetBrains Mono" font-size="12">7</text>
+      <circle cx="394" cy="210" r="18" fill="rgba(45,212,191,.08)" stroke="#265050" stroke-width="1.5"/>
+      <text x="394" y="210" text-anchor="middle" dominant-baseline="central" fill="#4a9a94" font-family="JetBrains Mono" font-size="12">4</text>
+      <circle cx="448" cy="210" r="18" fill="rgba(45,212,191,.08)" stroke="#265050" stroke-width="1.5"/>
+      <text x="448" y="210" text-anchor="middle" dominant-baseline="central" fill="#4a9a94" font-family="JetBrains Mono" font-size="12">9</text>
+      <circle cx="498" cy="210" r="18" fill="rgba(45,212,191,.08)" stroke="#265050" stroke-width="1.5"/>
+      <text x="498" y="210" text-anchor="middle" dominant-baseline="central" fill="#4a9a94" font-family="JetBrains Mono" font-size="12">5</text>
+      <!-- operation labels -->
+      <text x="420" y="246" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="9">heappush(x): insert &amp; re-heapify — O(log n)</text>
+      <text x="420" y="260" text-anchor="middle" dominant-baseline="central" fill="#2dd4bf" font-family="JetBrains Mono" font-size="9">heappop():   remove min &amp; re-heapify — O(log n)</text>
     </svg>
     <div class="viz-label">Max-heap (left) vs Min-heap (right / Python heapq). The tree structure is implied by array index math — no pointers needed.</div>
   </div>
